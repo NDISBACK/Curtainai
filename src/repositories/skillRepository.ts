@@ -24,7 +24,8 @@ export class SkillRepository extends BaseRepository {
     workspaceId: string,
     page = 1,
     limit = DEFAULT_LIMIT,
-    status?: SkillStatus
+    status?: SkillStatus,
+    search?: string
   ): Promise<SkillRow[]> {
     const offset = (page - 1) * limit;
 
@@ -34,14 +35,40 @@ export class SkillRepository extends BaseRepository {
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    if (status !== undefined) {
-      query = query.eq('status', status);
+    if (status !== undefined) query = query.eq('status', status);
+
+    if (search?.trim()) {
+      const term = `%${search.trim()}%`;
+      query = query.or(`name.ilike.${term},trigger_condition.ilike.${term},decision.ilike.${term}`);
     }
 
     const { data, error } = await query;
+    if (error) throw new AppError(error.message, 500);
+    return (data ?? []) as SkillRow[];
+  }
+
+  // Fetches ALL active skills for a workspace — no pagination cap.
+  // Used by the query pipeline. Limit 5000 guards against extreme edge cases.
+  async findAllActiveByWorkspace(workspaceId: string): Promise<SkillRow[]> {
+    const { data, error } = await this.from()
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(5000);
 
     if (error) throw new AppError(error.message, 500);
+    return (data ?? []) as SkillRow[];
+  }
 
+  async findManyByIds(ids: string[], workspaceId: string): Promise<SkillRow[]> {
+    if (ids.length === 0) return [];
+    const { data, error } = await this.from()
+      .select('*')
+      .in('id', ids)
+      .eq('workspace_id', workspaceId);
+
+    if (error) throw new AppError(error.message, 500);
     return (data ?? []) as SkillRow[];
   }
 

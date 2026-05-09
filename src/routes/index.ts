@@ -13,6 +13,9 @@ import queryRoutes from './queryRoutes';
 import simulationRoutes from './simulationRoutes';
 import waitlistRoutes from './waitlistRoutes';
 import integrationRoutes from './integrationRoutes';
+import escalationRoutes from './escalationRoutes';
+import auditRoutes from './auditRoutes';
+import teamRoutes from './teamRoutes';
 
 const router = Router();
 
@@ -51,6 +54,15 @@ router.use('/simulate', simulationRoutes);
 
 // Integrations — Gmail, WhatsApp, Freshdesk connections
 router.use('/integrations', integrationRoutes);
+
+// Escalation inbox
+router.use('/escalations', escalationRoutes);
+
+// Audit log
+router.use('/audit', auditRoutes);
+
+// Team members
+router.use('/team', teamRoutes);
 
 // Live decision stream (SSE) — auth via query param ?key=cai_... (EventSource can't set headers)
 router.get('/stream/decisions', streamDecisions);

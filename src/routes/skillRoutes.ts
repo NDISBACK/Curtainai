@@ -8,6 +8,7 @@ import {
   disableSkill,
   enableSkill,
   listSkills,
+  batchApproveSkills,
 } from '../controllers/skillController';
 import {
   exportSkills,
@@ -27,6 +28,7 @@ router.post('/', createSkill);
 // Named static routes MUST come before /:id to prevent "export"/"import" being matched as IDs
 router.get('/export', exportSkills);
 router.post('/import', importSkills);
+router.post('/batch-approve', batchApproveSkills);
 
 // ── Single-resource routes ────────────────────────────────────────────────────
 router.get('/:id', getSkill);

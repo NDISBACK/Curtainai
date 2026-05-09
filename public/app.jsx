@@ -74,13 +74,14 @@ const SetupScreen = ({ onConnected }) => {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 function App() {
-  const [workspace, setWorkspace] = React.useState(null);
-  const [connected, setConnected] = React.useState(false);
-  const [page, setPage] = React.useState('dashboard');
-  const [skillId, setSkillId] = React.useState(null);
-  const [activityFocus, setActivityFocus] = React.useState(null);
-  const [skillCount, setSkillCount] = React.useState(null);
-  const [tweaks, setTweak] = useTweaks(TWEAKS_DEFAULTS);
+  const [workspace, setWorkspace]           = React.useState(null);
+  const [connected, setConnected]           = React.useState(false);
+  const [page, setPage]                     = React.useState('dashboard');
+  const [skillId, setSkillId]               = React.useState(null);
+  const [activityFocus, setActivityFocus]   = React.useState(null);
+  const [skillCount, setSkillCount]         = React.useState(null);
+  const [openEscalationCount, setOpenEscalationCount] = React.useState(null);
+  const [tweaks, setTweak]                  = useTweaks(TWEAKS_DEFAULTS);
 
   // Apply tweaks live
   React.useEffect(() => {
@@ -110,11 +111,14 @@ function App() {
     }
   }, [connected]);
 
-  // Load skill count for sidebar badge
+  // Load sidebar badge counts
   React.useEffect(() => {
     if (!connected) return;
     window.api.listSkills({ limit: 200 })
       .then(sk => setSkillCount(sk.length))
+      .catch(() => {});
+    window.api.listEscalations({ status: 'open', limit: 1 })
+      .then(r => setOpenEscalationCount(r.total || 0))
       .catch(() => {});
   }, [connected]);
 
@@ -131,35 +135,47 @@ function App() {
 
   const navPage = page === 'skill' ? 'skills' : page;
   const crumbMap = {
-    dashboard: 'Dashboard', skills: 'Skills', skill: 'Skills',
-    test: 'Query Console', activity: 'Activity', settings: 'Settings',
-    extraction: 'Extraction Studio', analytics: 'Analytics',
-    simulation: 'Simulation Lab', docs: 'Python SDK Docs',
+    dashboard:   'Dashboard',
+    skills:      'Skills',
+    skill:       'Skills',
+    test:        'Query Console',
+    activity:    'Activity',
+    settings:    'Settings',
+    extraction:  'Extraction Studio',
+    analytics:   'Analytics',
+    simulation:  'Simulation Lab',
+    docs:        'Python SDK Docs',
     connections: 'Connections',
-    mcp: 'MCP Console',
-    live: 'Live Feed',
+    mcp:         'MCP Console',
+    live:        'Live Feed',
+    escalations: 'Escalation Inbox',
+    team:        'Team',
+    audit:       'Audit Log',
   };
   const crumb = crumbMap[page] || page;
 
   let body;
-  if (page === 'dashboard') body = <Dashboard goto={goto} openSkill={openSkill} workspace={workspace} />;
-  else if (page === 'skills') body = <SkillsPage openSkill={openSkill} />;
-  else if (page === 'skill') body = <SkillDetail id={skillId} back={() => goto('skills')} />;
-  else if (page === 'test') body = <QueryConsole openSkill={openSkill} goto={goto} />;
-  else if (page === 'activity') body = <ActivityPage initialId={activityFocus} openSkill={openSkill} goto={goto} />;
-  else if (page === 'settings') body = <SettingsPage workspace={workspace} onWorkspaceUpdated={ws => setWorkspace(ws)} />;
-  else if (page === 'extraction') body = <ExtractionStudio goto={goto} />;
-  else if (page === 'analytics') body = <AnalyticsPage goto={goto} />;
-  else if (page === 'simulation') body = <SimulationPage />;
+  if (page === 'dashboard')   body = <Dashboard goto={goto} openSkill={openSkill} workspace={workspace} />;
+  else if (page === 'skills')      body = <SkillsPage openSkill={openSkill} />;
+  else if (page === 'skill')       body = <SkillDetail id={skillId} back={() => goto('skills')} />;
+  else if (page === 'test')        body = <QueryConsole openSkill={openSkill} goto={goto} />;
+  else if (page === 'activity')    body = <ActivityPage initialId={activityFocus} openSkill={openSkill} goto={goto} />;
+  else if (page === 'settings')    body = <SettingsPage workspace={workspace} onWorkspaceUpdated={ws => setWorkspace(ws)} />;
+  else if (page === 'extraction')  body = <ExtractionStudio goto={goto} />;
+  else if (page === 'analytics')   body = <AnalyticsPage goto={goto} />;
+  else if (page === 'simulation')  body = <SimulationPage />;
   else if (page === 'connections') body = <ConnectionsPage goto={goto} />;
-  else if (page === 'mcp') body = <McpConsolePage goto={goto} />;
-  else if (page === 'live') body = <LiveFeedPage />;
-  else if (page === 'docs') body = <DocsPage />;
+  else if (page === 'mcp')         body = <McpConsolePage goto={goto} />;
+  else if (page === 'live')        body = <LiveFeedPage />;
+  else if (page === 'docs')        body = <DocsPage />;
+  else if (page === 'escalations') body = <EscalationInbox goto={goto} />;
+  else if (page === 'team')        body = <TeamPage />;
+  else if (page === 'audit')       body = <AuditLog />;
   else body = null;
 
   return (
     <div className="app">
-      <Sidebar page={navPage} setPage={goto} workspace={workspace} skillCount={skillCount} />
+      <Sidebar page={navPage} setPage={goto} workspace={workspace} skillCount={skillCount} openEscalationCount={openEscalationCount} />
       <div className="main">
         <Topbar crumb={crumb} workspace={workspace} />
         {body}

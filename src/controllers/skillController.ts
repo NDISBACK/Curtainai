@@ -4,7 +4,8 @@ import { catchAsync } from '../utils/catchAsync';
 import { sendSuccess } from '../utils/response';
 import { AppError } from '../utils/AppError';
 import { validateOrThrow } from '../validation';
-import { CreateSkillSchema, UpdateSkillSchema, ListSkillsQuerySchema } from '../validation/skill.schema';
+import { CreateSkillSchema, UpdateSkillSchema, ListSkillsQuerySchema, BatchApproveSchema } from '../validation/skill.schema';
+import { auditService } from '../services/auditService';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -19,9 +20,10 @@ function requireId(req: Request): string {
 export const createSkill = catchAsync(async (req: Request, res: Response) => {
   const input = validateOrThrow(CreateSkillSchema, {
     ...req.body,
-    workspace_id: req.workspace.id,  // always from auth context, not body
+    workspace_id: req.workspace.id,
   });
   const skill = await skillService.create(input);
+  auditService.log({ workspaceId: req.workspace.id, actorKeyId: req.apiKeyId, action: 'skill.created', resourceType: 'skill', resourceId: skill.id, meta: { name: skill.name } });
   sendSuccess(res, skill, 201);
 });
 
@@ -43,6 +45,7 @@ export const deleteSkill = catchAsync(async (req: Request, res: Response) => {
   const id = requireId(req);
   await skillService.assertOwnership(id, req.workspace.id);
   await skillService.deleteSkill(id);
+  auditService.log({ workspaceId: req.workspace.id, actorKeyId: req.apiKeyId, action: 'skill.deleted', resourceType: 'skill', resourceId: id });
   res.status(204).send();
 });
 
@@ -50,14 +53,22 @@ export const approveSkill = catchAsync(async (req: Request, res: Response) => {
   const id = requireId(req);
   await skillService.assertOwnership(id, req.workspace.id);
   const { skill, conflicts } = await skillService.approve(id);
-  // Always succeed — conflicts are warnings surfaced to the frontend, not blocks
+  auditService.log({ workspaceId: req.workspace.id, actorKeyId: req.apiKeyId, action: 'skill.approved', resourceType: 'skill', resourceId: id });
   sendSuccess(res, { skill, conflicts });
+});
+
+export const batchApproveSkills = catchAsync(async (req: Request, res: Response) => {
+  const { ids } = validateOrThrow(BatchApproveSchema, req.body);
+  const result = await skillService.batchApprove(ids, req.workspace.id);
+  auditService.log({ workspaceId: req.workspace.id, actorKeyId: req.apiKeyId, action: 'skill.batch_approved', meta: { count: result.approved.length } });
+  sendSuccess(res, result);
 });
 
 export const disableSkill = catchAsync(async (req: Request, res: Response) => {
   const id = requireId(req);
   await skillService.assertOwnership(id, req.workspace.id);
   const skill = await skillService.disable(id);
+  auditService.log({ workspaceId: req.workspace.id, actorKeyId: req.apiKeyId, action: 'skill.disabled', resourceType: 'skill', resourceId: id });
   sendSuccess(res, skill);
 });
 
@@ -69,12 +80,17 @@ export const enableSkill = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const listSkills = catchAsync(async (req: Request, res: Response) => {
-  const { status, page, limit } = validateOrThrow(ListSkillsQuerySchema, req.query);
+  const { status, page, limit, search } = validateOrThrow(ListSkillsQuerySchema, req.query);
   const workspaceId = req.workspace.id;
 
-  const skills = status === 'active'
-    ? await skillService.getActiveForWorkspace(workspaceId, page, limit)
-    : await skillService.getAllForWorkspace(workspaceId, page, limit);
+  let skills;
+  if (search?.trim()) {
+    skills = await skillService.searchForWorkspace(workspaceId, search, page, limit);
+  } else if (status === 'active') {
+    skills = await skillService.getActiveForWorkspace(workspaceId, page, limit);
+  } else {
+    skills = await skillService.getAllForWorkspace(workspaceId, page, limit);
+  }
 
   sendSuccess(res, skills);
 });

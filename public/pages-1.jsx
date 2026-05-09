@@ -512,39 +512,72 @@ const ConflictWarningModal = ({ conflicts, onClose, onViewSkill }) => {
 
 // ─── Skills ───────────────────────────────────────────────────────────────────
 const SkillsPage = ({ openSkill }) => {
-  const [skills, setSkills] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [err, setErr] = React.useState(null);
-  const [filter, setFilter] = React.useState('All');
-  const [status, setStatus] = React.useState('all');
-  const [q, setQ] = React.useState('');
-  const [showNew, setShowNew] = React.useState(false);
-  const [actioning, setActioning] = React.useState(null); // skill id being actioned
-  const [conflictData, setConflictData] = React.useState(null); // { conflicts }
+  const [skills, setSkills]         = React.useState([]);
+  const [loading, setLoading]       = React.useState(true);
+  const [err, setErr]               = React.useState(null);
+  const [status, setStatus]         = React.useState('all');
+  const [q, setQ]                   = React.useState('');
+  const [searchInput, setSearchInput] = React.useState('');
+  const [showNew, setShowNew]       = React.useState(false);
+  const [actioning, setActioning]   = React.useState(null);
+  const [conflictData, setConflictData] = React.useState(null);
+  const [selected, setSelected]     = React.useState(new Set());
+  const [batchLoading, setBatchLoading] = React.useState(false);
+  const [batchResult, setBatchResult]   = React.useState(null); // { approved, skipped }
+  const searchRef                   = React.useRef(null);
 
   const load = React.useCallback(async () => {
-    setLoading(true);
-    setErr(null);
+    setLoading(true); setErr(null);
     try {
-      const data = await window.api.listSkills({ limit: 100 });
+      const params = { limit: 100 };
+      if (q.trim()) params.search = q.trim();
+      if (status !== 'all') params.status = status;
+      const data = await window.api.listSkills(params);
       setSkills(data);
+      setSelected(new Set());
     } catch (e) {
       setErr(e.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [q, status]);
 
   React.useEffect(() => { load(); }, [load]);
 
-  const categories = ['All', ...Array.from(new Set(skills.map(s => s.category).filter(Boolean)))];
+  // Debounce search input
+  React.useEffect(() => {
+    if (searchRef.current) clearTimeout(searchRef.current);
+    searchRef.current = setTimeout(() => setQ(searchInput), 350);
+    return () => clearTimeout(searchRef.current);
+  }, [searchInput]);
 
-  const filtered = skills.filter(s =>
-    (filter === 'All' || s.category === filter) &&
-    (status === 'all' || s.status === status) &&
-    (q === '' || (s.name || '').toLowerCase().includes(q.toLowerCase()) ||
-      (s.trigger_condition || '').toLowerCase().includes(q.toLowerCase()))
-  );
+  const pendingSkills = skills.filter(s => s.status === 'pending_review');
+  const allPendingSelected = pendingSkills.length > 0 && pendingSkills.every(s => selected.has(s.id));
+
+  const toggleSelect = (id) => setSelected(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+
+  const selectAllPending = () => {
+    if (allPendingSelected) setSelected(new Set());
+    else setSelected(new Set(pendingSkills.map(s => s.id)));
+  };
+
+  const batchApprove = async () => {
+    if (selected.size === 0) return;
+    setBatchLoading(true); setErr(null);
+    try {
+      const result = await window.api.batchApproveSkills([...selected]);
+      setBatchResult(result);
+      await load();
+    } catch (e) {
+      setErr(`Batch approve failed: ${e.message}`);
+    } finally {
+      setBatchLoading(false);
+    }
+  };
 
   const action = async (id, fn, label) => {
     setActioning(id);
@@ -569,11 +602,31 @@ const SkillsPage = ({ openSkill }) => {
           <p className="page-sub">Decision patterns that drive every automated response in your workspace.</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          {selected.size > 0 && (
+            <button className="btn primary" disabled={batchLoading} onClick={batchApprove}>
+              <Icon name="check" size={13} />
+              {batchLoading ? 'Approving…' : `Approve ${selected.size} selected`}
+            </button>
+          )}
+          {pendingSkills.length > 0 && selected.size === 0 && (
+            <button className="btn" onClick={selectAllPending}>
+              <Icon name="check2" size={13} /> Select all pending ({pendingSkills.length})
+            </button>
+          )}
           <button className="btn primary" onClick={() => setShowNew(true)}><Icon name="plus" size={13} /> New skill</button>
         </div>
       </div>
 
       {err && <ErrorAlert message={err} onRetry={load} />}
+
+      {batchResult && (
+        <div className="alert" style={{ marginBottom: 16, background: 'var(--success-soft)', borderColor: 'var(--success)', color: 'var(--success)' }}>
+          <Icon name="check2" size={14} />
+          Batch approved {batchResult.approved?.length || 0} skills.
+          {batchResult.skipped?.length > 0 && ` ${batchResult.skipped.length} skipped (already active or disabled).`}
+          <button className="btn sm" style={{ marginLeft: 12 }} onClick={() => setBatchResult(null)}>Dismiss</button>
+        </div>
+      )}
 
       {conflictData && (
         <ConflictWarningModal
@@ -587,24 +640,19 @@ const SkillsPage = ({ openSkill }) => {
 
       <div className="card" style={{ overflow: 'hidden' }}>
         <div className="filterbar">
-          {categories.length > 1 && (
-            <div className="chip-group">
-              {categories.map(c => (
-                <button key={c} className={`chip ${filter === c ? 'active' : ''}`} onClick={() => setFilter(c)}>{c}</button>
-              ))}
-            </div>
-          )}
-          <div style={{ width: 1, height: 22, background: 'var(--line)' }}></div>
           <div className="chip-group">
             {[['all','All'],['active','Active'],['pending_review','Pending'],['disabled','Disabled']].map(([k,v]) => (
-              <button key={k} className={`chip ${status === k ? 'active' : ''}`} onClick={() => setStatus(k)}>{v}</button>
+              <button key={k} className={`chip ${status === k ? 'active' : ''}`}
+                onClick={() => { setStatus(k); setSelected(new Set()); }}>{v}</button>
             ))}
           </div>
-          <input className="filter-input" placeholder="Filter by name or trigger…" value={q} onChange={e => setQ(e.target.value)} />
+          <input className="filter-input" placeholder="Search skills…" value={searchInput}
+            onChange={e => setSearchInput(e.target.value)} />
         </div>
         <table className="table">
           <thead>
             <tr>
+              <th style={{ width: 32 }}></th>
               <th style={{ width: '34%' }}>Name</th>
               <th>Status</th>
               <th>Health</th>
@@ -614,9 +662,17 @@ const SkillsPage = ({ openSkill }) => {
             </tr>
           </thead>
           <tbody>
-            {loading && [1,2,3,4,5].map(i => <SkeletonRow key={i} cols={6} />)}
-            {!loading && filtered.map(s => (
-              <tr key={s.id} onClick={() => openSkill(s.id)}>
+            {loading && [1,2,3,4,5].map(i => <SkeletonRow key={i} cols={7} />)}
+            {!loading && skills.map(s => (
+              <tr key={s.id} onClick={() => openSkill(s.id)}
+                style={selected.has(s.id) ? { background: 'var(--accent-soft)' } : {}}>
+                <td onClick={e => e.stopPropagation()} style={{ paddingRight: 0 }}>
+                  {s.status === 'pending_review' && (
+                    <input type="checkbox" checked={selected.has(s.id)}
+                      onChange={() => toggleSelect(s.id)}
+                      style={{ width: 14, height: 14, cursor: 'pointer' }} />
+                  )}
+                </td>
                 <td>
                   <div style={{ fontWeight: 500 }}>{s.name}</div>
                   <div style={{ fontSize: 12, color: 'var(--ink-4)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 360 }}>
@@ -631,7 +687,7 @@ const SkillsPage = ({ openSkill }) => {
                   </div>
                 </td>
                 <td><Confidence value={s.confidence} /></td>
-                <td style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{fmtDate(s.created_at).split(',')[0]}</td>
+                <td style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
                 <td onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {s.status === 'pending_review' && (
                     <button className="btn sm accent" disabled={actioning === s.id}
@@ -655,15 +711,15 @@ const SkillsPage = ({ openSkill }) => {
                 </td>
               </tr>
             ))}
-            {!loading && filtered.length === 0 && (
-              <tr><td colSpan="6" className="empty">
-                {skills.length === 0 ? 'No skills yet. Create your first skill.' : 'No skills match these filters.'}
+            {!loading && skills.length === 0 && (
+              <tr><td colSpan="7" className="empty">
+                {q ? `No skills match "${q}"` : 'No skills yet. Create your first skill.'}
               </td></tr>
             )}
           </tbody>
         </table>
         <div className="card-foot">
-          <span>{loading ? '…' : `${filtered.length} of ${skills.length} skills`}</span>
+          <span>{loading ? '…' : `${skills.length} skills${q ? ` matching "${q}"` : ''}`}</span>
           <span>Updated {new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
         </div>
       </div>
