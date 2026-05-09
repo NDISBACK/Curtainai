@@ -118,11 +118,10 @@ const ConnectForm = ({ provider, onSubmit, onCancel, loading, err }) => {
 };
 
 // ─── Integration card ─────────────────────────────────────────────────────────
-const IntegrationCard = ({ provider, integration, onRefresh, onSync, onStopSync, syncing, syncProgress, syncJobId, goto }) => {
+const IntegrationCard = ({ provider, integration, onRefresh, onSync, syncing, syncProgress, goto }) => {
   const [showForm, setShowForm] = React.useState(false);
   const [connecting, setConnecting] = React.useState(false);
   const [disconnecting, setDisconnecting] = React.useState(false);
-  const [stopping, setStopping] = React.useState(false);
   const [formErr, setFormErr] = React.useState(null);
 
   const isConnected = integration?.status === 'active';
@@ -152,19 +151,6 @@ const IntegrationCard = ({ provider, integration, onRefresh, onSync, onStopSync,
       alert(e.message);
     } finally {
       setDisconnecting(false);
-    }
-  };
-
-  const handleStopSync = async () => {
-    if (!syncJobId || stopping) return;
-    setStopping(true);
-    try {
-      await window.api.cancelSync(integration.id, syncJobId);
-      onStopSync();
-    } catch (e) {
-      alert(`Could not stop sync: ${e.message}`);
-    } finally {
-      setStopping(false);
     }
   };
 
@@ -260,24 +246,13 @@ const IntegrationCard = ({ provider, integration, onRefresh, onSync, onStopSync,
                     : <><span className="spinner" style={{ width: 12, height: 12, marginRight: 6 }} />Starting…</>
                 ) : 'Sync Now'}
               </button>
-              {syncing ? (
-                <button
-                  className="btn ghost sm"
-                  onClick={handleStopSync}
-                  disabled={stopping}
-                  style={{ color: 'var(--danger)', borderColor: 'var(--danger-soft)' }}
-                >
-                  {stopping ? 'Stopping…' : 'Stop Sync'}
-                </button>
-              ) : (
-                <button
-                  className="btn ghost sm"
-                  onClick={handleDisconnect}
-                  disabled={disconnecting}
-                >
-                  {disconnecting ? 'Disconnecting…' : 'Disconnect'}
-                </button>
-              )}
+              <button
+                className="btn ghost sm"
+                onClick={handleDisconnect}
+                disabled={disconnecting}
+              >
+                Disconnect
+              </button>
             </>
           ) : provider.connectType === 'oauth' ? (
             <button className="btn primary sm" onClick={handleGmailConnect} disabled={gmailLoading}>
@@ -532,9 +507,6 @@ const ConnectionsPage = ({ goto }) => {
           setPreviewIntId(syncJob.integrationId);
           setSyncJob(null);
           setSyncing(null);
-        } else if (status.status === 'cancelled') {
-          setSyncJob(null);
-          setSyncing(null);
         } else if (status.status === 'error') {
           alert(`Sync failed: ${status.error}`);
           setSyncJob(null);
@@ -565,11 +537,6 @@ const ConnectionsPage = ({ goto }) => {
       alert(`Sync failed: ${e.message}`);
       setSyncing(null);
     }
-  };
-
-  const handleStopSync = () => {
-    setSyncing(null);
-    setSyncJob(null);
   };
 
   const getIntegration = (providerId) =>
@@ -607,10 +574,8 @@ const ConnectionsPage = ({ goto }) => {
               integration={getIntegration(p.id)}
               onRefresh={load}
               onSync={handleSync}
-              onStopSync={handleStopSync}
               syncing={syncing === p.id}
               syncProgress={syncing === p.id ? syncJob?.progress : null}
-              syncJobId={syncing === p.id ? syncJob?.id : null}
               goto={goto}
             />
           ))}

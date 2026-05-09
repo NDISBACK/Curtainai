@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { env } from '../config/env';
 import { integrationService } from '../services/integrationService';
 import { gmailService } from '../services/gmailService';
 import { integrationRepository } from '../repositories/integrationRepository';
@@ -119,13 +118,5 @@ export const gmailOAuthCallback = catchAsync(async (req: Request, res: Response)
     last_synced_at: null,
   });
 
-  const base = env.frontendUrl || '';
-  res.redirect(`${base}/app.html?connected=gmail`);
-});
-
-export const cancelSync = catchAsync(async (req: Request, res: Response) => {
-  const { job_id } = req.body as { job_id?: string };
-  if (!job_id?.trim()) throw new AppError('job_id is required', 400);
-  integrationService.cancelSync(job_id, req.workspace.id);
-  sendSuccess(res, { cancelled: true });
+  res.redirect('/app.html?connected=gmail');
 });

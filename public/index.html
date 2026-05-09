@@ -3,15 +3,176 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Curtain — Decision infrastructure for AI agents · Early access</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://curtainai.in/" />
+
+  <!-- Primary SEO -->
+  <title>Curtain — AI Agent Decision Management &amp; Governance Platform</title>
+  <meta name="description" content="Curtain is decision infrastructure for AI agents. Every action is policy-checked via LLM policy enforcement, reviewable, and reversible — with a complete audit trail. Now in closed beta." />
+  <meta name="author" content="Curtain" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+  <!-- OpenGraph -->
+  <meta property="og:type"         content="website" />
+  <meta property="og:url"          content="https://curtainai.in/" />
+  <meta property="og:site_name"    content="Curtain" />
+  <meta property="og:title"        content="Curtain — AI Agent Decision Management &amp; Governance Platform" />
+  <meta property="og:description"  content="Decision infrastructure for AI agents. Every action is policy-checked, reviewable, and reversible — with a complete audit trail. Closed beta, now onboarding." />
+  <meta property="og:image"        content="https://curtainai.in/og-image.png" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt"    content="Curtain dashboard showing AI agent query history with policy matching and confidence scores" />
+  <meta property="og:locale"       content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:site"        content="@curtainai" />
+  <meta name="twitter:title"       content="Curtain — AI Agent Decision Management &amp; Governance Platform" />
+  <meta name="twitter:description" content="Decision infrastructure for AI agents. Policy-checked, reviewable, reversible — with a complete audit trail. Closed beta." />
+  <meta name="twitter:image"       content="https://curtainai.in/og-image.png" />
+  <meta name="twitter:image:alt"   content="Curtain dashboard showing AI agent query history with policy matching and confidence scores" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+  <!-- Fonts -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="product-site.css" />
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+
+  <!-- React PRODUCTION builds (~88% smaller than dev builds, faster LCP/TBT) -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <!-- Structured Data: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Curtain",
+    "url": "https://curtainai.in",
+    "logo": { "@type": "ImageObject", "url": "https://curtainai.in/favicon.svg" },
+    "description": "Curtain builds decision infrastructure for AI agents — policy-checked, reviewable, reversible actions with a complete audit trail.",
+    "contactPoint": { "@type": "ContactPoint", "contactType": "sales", "email": "founders@curtainai.in" }
+  }
+  </script>
+
+  <!-- Structured Data: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Curtain",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "AI Governance",
+    "operatingSystem": "Web",
+    "url": "https://curtainai.in",
+    "description": "Decision infrastructure for AI agents. Curtain sits between AI agents and the world — every action is policy-checked via skill matching, reviewable, and reversible, with a complete audit trail.",
+    "featureList": [
+      "AI agent policy enforcement",
+      "Skill-based decision matching with hybrid vector and Jaccard search",
+      "Human-in-the-loop review and override system",
+      "Complete audit trail for every AI decision",
+      "Real-time analytics and confidence scoring",
+      "SOC 2 Type II compliance"
+    ],
+    "screenshot": "https://curtainai.in/og-image.png",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Audience",
+        "description": "Free tier — up to 50,000 queries per month",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      {
+        "@type": "Offer",
+        "name": "Front Row",
+        "description": "5 million queries per month with full analytics",
+        "price": "1900",
+        "priceCurrency": "USD"
+      },
+      {
+        "@type": "Offer",
+        "name": "Encore",
+        "description": "Enterprise plan with custom volume and deployment"
+      }
+    ],
+    "publisher": { "@type": "Organization", "name": "Curtain", "url": "https://curtainai.in" }
+  }
+  </script>
+
+  <!-- Structured Data: WebSite (enables Sitelinks Search Box for branded queries) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Curtain",
+    "url": "https://curtainai.in",
+    "description": "Decision infrastructure for AI agents — policy enforcement, human review, and audit trails.",
+    "inLanguage": "en-US"
+  }
+  </script>
+
+  <!-- Structured Data: FAQPage (unlocks accordion rich results in Google SERPs) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Curtain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Curtain is decision infrastructure for AI agents. It sits between your AI agents and the world — every action is policy-checked using skill-based matching, reviewable by a human, and reversible, with a complete audit trail for every decision."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does AI agent policy enforcement work in Curtain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You define skills — plain-English descriptions of what your agent should do in specific situations. Your agent POSTs a query to Curtain, which matches it against your skill corpus using hybrid vector and keyword search, and returns a confidence score, matched skill, and escalation decision in under 40ms."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there a free plan?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — the Audience plan is free up to 50,000 queries per month. It is designed for teams evaluating Curtain, building demos, or running internal agents."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use Curtain with any LLM or AI agent framework?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Curtain is provider-agnostic — the query engine works independently of whichever model produces the agent actions. It works with OpenAI, Anthropic, open-source models, and any agent framework via a simple REST API."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What compliance certifications does Curtain have?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Curtain is SOC 2 Type II in audit, scoped for ISO 27001, and GDPR compliant with a DPA available. HIPAA BAA is available on the Encore enterprise plan."
+        }
+      }
+    ]
+  }
+  </script>
+
 </head>
 <body>
   <div id="root"></div>

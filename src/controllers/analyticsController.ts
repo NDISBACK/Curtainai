@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { analyticsService } from '../services/analyticsService';
 import { skillService } from '../services/skillService';
 import { queryRepository } from '../repositories/queryRepository';
+import { gapAnalysisService } from '../services/gapAnalysisService';
 import { catchAsync } from '../utils/catchAsync';
 import { sendSuccess } from '../utils/response';
 import { AppError } from '../utils/AppError';
@@ -34,6 +35,12 @@ export const getSkillAnalytics = catchAsync(async (req: Request, res: Response) 
     to   ? new Date(to)   : undefined
   );
   sendSuccess(res, analytics);
+});
+
+export const getGapAnalysis = catchAsync(async (req: Request, res: Response) => {
+  const limit = Math.min(parseInt(String(req.query['limit'] ?? '200'), 10) || 200, 500);
+  const report = await gapAnalysisService.analyzeGaps(req.workspace.id, limit);
+  sendSuccess(res, report);
 });
 
 export const getQueryHistory = catchAsync(async (req: Request, res: Response) => {

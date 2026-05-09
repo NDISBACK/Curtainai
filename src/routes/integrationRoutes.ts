@@ -6,7 +6,6 @@ import {
   syncIntegration,
   getSyncStatus,
   confirmSync,
-  cancelSync,
   getGmailOAuthUrl,
 } from '../controllers/integrationController';
 
@@ -23,7 +22,6 @@ router.delete('/:id', deleteIntegration);
 // Async sync — start job, poll progress, confirm selected skills
 router.post('/:id/sync', syncIntegration);
 router.get('/:id/sync/status', getSyncStatus);
-router.post('/:id/sync/cancel', cancelSync);
 router.post('/:id/sync/confirm', confirmSync);
 
 export default router;

@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { EventEmitter } from 'events';
 import { skillService } from './skillService';
 import { embeddingService } from './embeddingService';
 import { queryRepository } from '../repositories/queryRepository';
@@ -11,6 +12,9 @@ import { env } from '../config/env';
 import { validateOrThrow } from '../validation';
 import { LLMSelectionResponseSchema } from '../validation/query.schema';
 import type { SkillRow, WorkspaceRow } from '../types/entities';
+
+export const decisionEmitter = new EventEmitter();
+decisionEmitter.setMaxListeners(200);
 
 // ─── OpenAI client ────────────────────────────────────────────────────────────
 
@@ -348,6 +352,18 @@ export const queryService = {
       escalate: selection.escalate,
       method,
       candidates_count: candidates.length,
+    });
+
+    decisionEmitter.emit('decision', {
+      id:           query_id,
+      workspace_id: input.workspace_id,
+      input:        input.query.slice(0, 120),
+      decision:     selection.decision,
+      skill_name:   candidates.find(c => c.skill.id === selection.skill_id)?.skill.name ?? null,
+      confidence:   selection.confidence,
+      escalated:    selection.escalate,
+      search_method: method,
+      created_at:   new Date().toISOString(),
     });
 
     return { query_id, ...selection };
