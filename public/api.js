@@ -34,6 +34,7 @@ class CurtainAPI {
         ...(options.headers || {}),
       },
     });
+    if (res.status === 204) return null;
     const body = await res.json();
     if (!body.success) {
       const err = new Error(body.error || `HTTP ${res.status}`);
@@ -205,9 +206,35 @@ class CurtainAPI {
     });
   }
 
+  cancelSync(id, jobId) {
+    return this._fetch(`/integrations/${id}/sync/cancel`, {
+      method: 'POST',
+      body: JSON.stringify({ job_id: jobId }),
+    });
+  }
+
   // ── Gap Analysis ──────────────────────────────────────────────────────────
   getGapAnalysis(limit = 200) {
     return this._fetch(`/analytics/gaps?limit=${limit}`);
+  }
+
+  // ── MCP ───────────────────────────────────────────────────────────────────
+  async mcpCall(method, params = null) {
+    const payload = { jsonrpc: '2.0', id: Date.now(), method };
+    if (params) payload.params = params;
+    const res = await fetch('/mcp/v1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this._key}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  }
+
+  exportSkills(format = 'mcp_tools', status = 'active') {
+    return this._fetch(`/skills/export?format=${format}&status=${status}`);
   }
 }
 

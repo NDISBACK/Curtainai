@@ -1,0 +1,1544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Curtain — Pitch Deck</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ── Reset & tokens ───────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0B0D0E;
+  --bg-1:    #111416;
+  --bg-2:    #181B1E;
+  --bg-3:    #1F2327;
+  --line:    rgba(252,251,248,0.08);
+  --line-2:  rgba(252,251,248,0.05);
+  --ink:     #FCFBF8;
+  --ink-2:   rgba(252,251,248,0.72);
+  --ink-3:   rgba(252,251,248,0.48);
+  --ink-4:   rgba(252,251,248,0.28);
+  --ink-5:   rgba(252,251,248,0.14);
+  --green:   #34C759;
+  --green-s: rgba(52,199,89,0.12);
+  --green-b: rgba(52,199,89,0.22);
+  --orange:  #FF9500;
+  --orange-s:rgba(255,149,0,0.12);
+  --orange-b:rgba(255,149,0,0.22);
+  --blue:    #0A84FF;
+  --blue-s:  rgba(10,132,255,0.12);
+  --font:    'Inter', system-ui, sans-serif;
+  --mono:    'JetBrains Mono', ui-monospace, monospace;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ── Deck shell ───────────────────────────────────── */
+#deck {
+  width: 100vw; height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.38s cubic-bezier(.4,0,.2,1), transform 0.38s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+  padding: 0;
+  overflow: hidden;
+}
+.slide.active {
+  opacity: 1; transform: translateX(0);
+  pointer-events: all;
+}
+.slide.prev {
+  opacity: 0; transform: translateX(-40px);
+}
+
+/* shared grid background */
+.slide::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--line-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-2) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+}
+
+/* ── Nav bar ──────────────────────────────────────── */
+#nav {
+  position: fixed; bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+#nav button {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  font-family: var(--font);
+}
+#nav button:hover { background: var(--bg-3); color: var(--ink); }
+#nav button:disabled { opacity: 0.3; cursor: default; }
+#counter {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+  min-width: 52px;
+  text-align: center;
+}
+#fullscreen-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.15s;
+}
+#fullscreen-btn:hover { color: var(--ink); }
+
+/* ── Shared layout helpers ────────────────────────── */
+.inner {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 72px;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.slide-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+.slide-label::before {
+  content: '';
+  display: block;
+  width: 20px; height: 1px;
+  background: var(--line);
+}
+
+h1.hero {
+  font-size: clamp(44px, 5.5vw, 72px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+h1.hero em { font-style: normal; color: var(--ink-3); }
+
+h2.title {
+  font-size: clamp(32px, 3.8vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.sub {
+  font-size: clamp(14px, 1.5vw, 18px);
+  color: var(--ink-3);
+  line-height: 1.55;
+  max-width: 56ch;
+  margin-top: 18px;
+}
+
+/* ── Card ─────────────────────────────────────────── */
+.card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px 28px;
+}
+.card-sm {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+/* ── Tag/badge ────────────────────────────────────── */
+.tag {
+  display: inline-flex; align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 3px 9px;
+  letter-spacing: 0.01em;
+}
+.tag-green { background: var(--green-s); color: var(--green); border: 1px solid var(--green-b); }
+.tag-orange { background: var(--orange-s); color: var(--orange); border: 1px solid var(--orange-b); }
+.tag-blue { background: var(--blue-s); color: var(--blue); border: 1px solid rgba(10,132,255,0.22); }
+.tag-dim { background: var(--ink-5); color: var(--ink-3); border: 1px solid var(--line); }
+
+/* ── Mono label ───────────────────────────────────── */
+.mono { font-family: var(--mono); }
+
+/* ── Divider ──────────────────────────────────────── */
+.divider { height: 1px; background: var(--line); width: 100%; }
+
+/* ── Glow ─────────────────────────────────────────── */
+.glow-green {
+  position: absolute;
+  width: 480px; height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(52,199,89,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.glow-blue {
+  position: absolute;
+  width: 560px; height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10,132,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════
+   SLIDE 1 — COVER
+════════════════════════════════════════ */
+#s1 { background: var(--bg); }
+#s1 .inner { justify-content: space-between; padding-top: 64px; padding-bottom: 80px; }
+
+.s1-brand {
+  display: flex; align-items: center; gap: 12px;
+}
+.s1-mark {
+  width: 38px; height: 38px;
+  background: var(--ink);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.s1-mark .b { width: 7px; height: 20px; background: var(--bg); border-radius: 2.5px; }
+.s1-brand-name { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+.s1-badge {
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 500;
+  color: var(--ink-4);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.s1-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px 0; }
+
+.s1-tagline {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 24px;
+}
+
+.s1-h1 {
+  font-size: clamp(52px, 6.5vw, 88px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.0;
+  max-width: 14ch;
+}
+.s1-h1 em { font-style: normal; color: var(--ink-3); }
+
+.s1-sub {
+  margin-top: 24px;
+  font-size: clamp(15px, 1.5vw, 19px);
+  color: var(--ink-3);
+  max-width: 52ch;
+  line-height: 1.5;
+}
+
+.s1-pills {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-top: 40px;
+}
+.s1-pill {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-4);
+  background: var(--ink-5);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 14px;
+}
+
+.s1-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.s1-foot-l { font-family: var(--mono); font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; }
+.s1-conf {
+  display: flex; align-items: center; gap: 8px;
+}
+.s1-conf-bar {
+  height: 3px; border-radius: 999px; background: var(--line);
+  width: 120px; overflow: hidden;
+}
+.s1-conf-fill { height: 100%; width: 97%; background: var(--green); border-radius: 999px; }
+.s1-conf-label { font-family: var(--mono); font-size: 11px; color: var(--green); }
+
+/* ════════════════════════════════════════
+   SLIDE 2 — PROBLEM
+════════════════════════════════════════ */
+#s2 .inner { gap: 36px; }
+.s2-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.s2-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 26px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.s2-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--orange-s);
+  border: 1px solid var(--orange-b);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange);
+}
+.s2-card h3 {
+  font-size: 16px; font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+.s2-card p {
+  font-size: 13.5px; color: var(--ink-3); line-height: 1.55;
+}
+.s2-incident {
+  background: rgba(255,59,48,0.05);
+  border: 1px solid rgba(255,59,48,0.14);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.s2-incident-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #FF3B30; margin-top: 4px; flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(255,59,48,0.5);
+}
+.s2-incident p { font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+.s2-incident strong { color: var(--ink); font-weight: 600; }
+
+/* ════════════════════════════════════════
+   SLIDE 3 — SOLUTION
+════════════════════════════════════════ */
+#s3 .inner { gap: 36px; }
+
+.s3-arch {
+  display: flex; align-items: center; gap: 0;
+  justify-content: center;
+}
+.s3-node {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  flex: 1;
+}
+.s3-box {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: center;
+  width: 100%;
+  max-width: 180px;
+}
+.s3-box-agent { background: var(--bg-2); color: var(--ink-2); }
+.s3-box-curtain {
+  background: var(--bg);
+  border-color: rgba(52,199,89,0.3);
+  color: var(--ink);
+  box-shadow: 0 0 24px rgba(52,199,89,0.1);
+  position: relative;
+}
+.s3-box-curtain::before {
+  content: '';
+  position: absolute; inset: -1px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(52,199,89,0.15), transparent 60%);
+  pointer-events: none;
+}
+.s3-box-world { background: var(--bg-2); color: var(--ink-2); }
+.s3-box-label {
+  font-family: var(--mono);
+  font-size: 10.5px; color: var(--ink-4);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  text-align: center;
+}
+.s3-arrow {
+  flex: 0 0 auto; padding: 0 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.s3-arrow-line {
+  display: flex; align-items: center; gap: 4px;
+  color: var(--ink-4);
+}
+.s3-arrow-label { font-family: var(--mono); font-size: 10px; color: var(--ink-4); letter-spacing: 0.04em; }
+
+.s3-props {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+.s3-prop {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.s3-prop-num {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--green);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.s3-prop h4 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.s3-prop p { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+
+/* ════════════════════════════════════════
+   SLIDE 4 — HOW IT WORKS
+════════════════════════════════════════ */
+#s4 .inner { gap: 32px; }
+
+.s4-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+
+.s4-code {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.s4-code-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-2);
+}
+.s4-dot { width: 10px; height: 10px; border-radius: 50%; }
+.s4-code-title { font-family: var(--mono); font-size: 11px; color: var(--ink-4); margin-left: 4px; letter-spacing: 0.04em; }
+.s4-code-body {
+  padding: 20px 22px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--ink-3);
+}
+.s4-code-body .kw { color: var(--blue); }
+.s4-code-body .str { color: var(--orange); }
+.s4-code-body .key { color: var(--ink-2); }
+.s4-code-body .val-g { color: var(--green); }
+.s4-code-body .val-o { color: var(--orange); }
+.s4-code-body .cm { color: var(--ink-4); }
+.s4-code-body .sep { color: var(--ink-5); display: block; margin: 8px 0; }
+
+.s4-steps { display: flex; flex-direction: column; gap: 14px; }
+.s4-step {
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.s4-step-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: var(--bg-3); border: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px;
+}
+.s4-step-body h4 { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 4px; }
+.s4-step-body p { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+
+.s4-stat {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 4px;
+}
+.s4-stat-num { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--green); }
+.s4-stat-label { font-size: 12.5px; color: var(--ink-3); }
+
+/* ════════════════════════════════════════
+   SLIDE 5 — PRODUCT
+════════════════════════════════════════ */
+#s5 .inner { gap: 32px; }
+
+.s5-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.s5-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 26px;
+  display: flex; flex-direction: column; gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.s5-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to top, var(--bg-1), transparent);
+  pointer-events: none;
+}
+.s5-icon {
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.s5-icon-g { background: var(--green-s); border: 1px solid var(--green-b); color: var(--green); }
+.s5-icon-b { background: var(--blue-s); border: 1px solid rgba(10,132,255,0.22); color: var(--blue); }
+.s5-icon-o { background: var(--orange-s); border: 1px solid var(--orange-b); color: var(--orange); }
+.s5-card h3 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.s5-card p { font-size: 13px; color: var(--ink-3); line-height: 1.55; }
+.s5-list { display: flex; flex-direction: column; gap: 7px; }
+.s5-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--ink-3);
+}
+.s5-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--line); flex-shrink: 0; }
+
+/* ════════════════════════════════════════
+   SLIDE 6 — WHY NOW
+════════════════════════════════════════ */
+#s6 .inner { gap: 32px; }
+
+.s6-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 24px; align-items: start; }
+.s6-stats { display: flex; flex-direction: column; gap: 14px; }
+.s6-stat-row {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 20px;
+}
+.s6-num {
+  font-family: var(--mono);
+  font-size: 36px; font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+  min-width: 90px;
+}
+.s6-num span { color: var(--green); }
+.s6-desc { font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+.s6-desc strong { color: var(--ink-2); font-weight: 600; }
+
+.s6-signals { display: flex; flex-direction: column; gap: 12px; }
+.s6-signal {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--bg-1);
+}
+.s6-signal-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.s6-signal p { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+.s6-signal strong { color: var(--ink-2); font-weight: 600; }
+.s6-signal-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ════════════════════════════════════════
+   SLIDE 7 — MARKET
+════════════════════════════════════════ */
+#s7 .inner { gap: 32px; }
+
+.s7-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 32px; align-items: center; }
+
+/* concentric circles */
+.s7-circles {
+  position: relative;
+  width: 320px; height: 320px;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+.s7-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; align-items: center; justify-content: center;
+}
+.s7-ring-tam { width: 320px; height: 320px; background: rgba(10,132,255,0.04); border-color: rgba(10,132,255,0.15); }
+.s7-ring-sam { width: 216px; height: 216px; background: rgba(10,132,255,0.06); border-color: rgba(10,132,255,0.2); }
+.s7-ring-som { width: 120px; height: 120px; background: rgba(10,132,255,0.1); border-color: rgba(10,132,255,0.3); display: flex; align-items: center; justify-content: center; }
+
+.s7-ring-label {
+  position: absolute;
+  font-family: var(--mono); font-size: 10px; color: var(--ink-4);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+.s7-markets { display: flex; flex-direction: column; gap: 14px; }
+.s7-market {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex; align-items: center; gap: 16px;
+}
+.s7-market-tag {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-4);
+  letter-spacing: 0.07em; text-transform: uppercase;
+  min-width: 36px;
+}
+.s7-market-num {
+  font-family: var(--mono); font-size: 28px; font-weight: 700;
+  letter-spacing: -0.03em; color: var(--ink);
+  min-width: 80px;
+}
+.s7-market-desc { font-size: 13px; color: var(--ink-3); line-height: 1.45; }
+.s7-market-desc strong { color: var(--ink-2); font-weight: 600; }
+
+/* ════════════════════════════════════════
+   SLIDE 8 — BUSINESS MODEL
+════════════════════════════════════════ */
+#s8 .inner { gap: 32px; }
+
+.s8-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.s8-plan {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+  position: relative;
+}
+.s8-plan.featured {
+  border-color: var(--green);
+  background: linear-gradient(160deg, rgba(52,199,89,0.06) 0%, var(--bg-1) 60%);
+}
+.s8-plan.featured .s8-featured-ring {
+  position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+  border-radius: 14px;
+  pointer-events: none;
+}
+.s8-plan-label {
+  font-family: var(--mono);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.s8-plan-price {
+  font-family: var(--mono);
+  font-size: 36px; font-weight: 700;
+  letter-spacing: -0.04em; color: var(--ink);
+}
+.s8-plan-price small { font-size: 14px; color: var(--ink-4); font-weight: 400; letter-spacing: 0; }
+.s8-plan h4 { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.s8-plan-vol {
+  font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  background: var(--ink-5); border-radius: 6px; padding: 4px 10px;
+  display: inline-flex; align-self: flex-start;
+}
+.s8-plan-features { display: flex; flex-direction: column; gap: 8px; }
+.s8-feat {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12.5px; color: var(--ink-3); line-height: 1.4;
+}
+.s8-feat-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--green-s); border: 1px solid var(--green-b); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+.s8-feat-dot svg { width: 8px; height: 8px; }
+
+.s8-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.s8-metric {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: center;
+}
+.s8-metric-num { font-family: var(--mono); font-size: 26px; font-weight: 700; letter-spacing: -0.03em; color: var(--green); }
+.s8-metric-label { font-size: 12px; color: var(--ink-4); margin-top: 2px; }
+
+/* ════════════════════════════════════════
+   SLIDE 9 — TRACTION
+════════════════════════════════════════ */
+#s9 .inner { gap: 32px; }
+
+.s9-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.s9-metric {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.s9-num {
+  font-family: var(--mono);
+  font-size: 38px; font-weight: 700;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  line-height: 1;
+}
+.s9-num .accent { color: var(--green); }
+.s9-label { font-size: 12.5px; color: var(--ink-3); }
+.s9-delta {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--green);
+  margin-top: 2px;
+}
+
+.s9-quotes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.s9-quote {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.s9-quote-text {
+  font-size: 13.5px; color: var(--ink-2);
+  line-height: 1.6;
+  font-style: italic;
+}
+.s9-quote-text::before { content: '"'; color: var(--green); font-style: normal; font-size: 18px; line-height: 0; vertical-align: -4px; margin-right: 2px; }
+.s9-quote-attr {
+  font-size: 12px; color: var(--ink-4);
+  font-family: var(--mono);
+}
+
+/* ════════════════════════════════════════
+   SLIDE 10 — TEAM
+════════════════════════════════════════ */
+#s10 .inner { gap: 32px; }
+
+.s10-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.s10-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px 28px;
+  display: flex; gap: 20px;
+  align-items: flex-start;
+}
+.s10-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700;
+  color: var(--ink-3);
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+.s10-body { flex: 1; }
+.s10-name { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.s10-role { font-family: var(--mono); font-size: 11px; color: var(--green); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+.s10-bio { font-size: 12.5px; color: var(--ink-3); line-height: 1.55; margin-top: 10px; }
+.s10-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.s10-tag {
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-4);
+  background: var(--ink-5); border: 1px solid var(--line);
+  border-radius: 5px; padding: 2px 8px;
+}
+
+.s10-advisors {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex; align-items: center; gap: 16px;
+}
+.s10-adv-label { font-family: var(--mono); font-size: 11px; color: var(--ink-4); letter-spacing: 0.06em; text-transform: uppercase; flex-shrink: 0; }
+.s10-adv-list { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ════════════════════════════════════════
+   SLIDE 11 — THE ASK
+════════════════════════════════════════ */
+#s11 .inner { gap: 36px; }
+
+.s11-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.s11-raise {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.s11-amount {
+  font-family: var(--mono);
+  font-size: 58px; font-weight: 700;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  line-height: 1;
+}
+.s11-round { font-size: 14px; color: var(--ink-3); margin-top: 4px; }
+
+.s11-use { display: flex; flex-direction: column; gap: 10px; }
+.s11-bucket {
+  display: flex; align-items: center; gap: 14px;
+}
+.s11-bucket-pct {
+  font-family: var(--mono);
+  font-size: 20px; font-weight: 700;
+  color: var(--ink);
+  min-width: 46px;
+}
+.s11-bucket-bar-wrap {
+  flex: 1; height: 4px; background: var(--line); border-radius: 999px; overflow: hidden;
+}
+.s11-bucket-bar { height: 100%; border-radius: 999px; }
+.s11-bucket-label { font-size: 13px; color: var(--ink-3); min-width: 180px; }
+
+.s11-milestones { display: flex; flex-direction: column; gap: 12px; }
+.s11-milestone {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.s11-ms-date { font-family: var(--mono); font-size: 11px; color: var(--green); min-width: 60px; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px; }
+.s11-ms-text { font-size: 13px; color: var(--ink-3); line-height: 1.45; }
+.s11-ms-text strong { color: var(--ink-2); font-weight: 600; }
+
+/* ════════════════════════════════════════
+   SLIDE 12 — CLOSE
+════════════════════════════════════════ */
+#s12 { background: var(--bg); }
+#s12 .inner { justify-content: center; align-items: center; text-align: center; gap: 32px; }
+
+.s12-mark {
+  width: 64px; height: 64px;
+  background: var(--ink);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.s12-mark .b { width: 11px; height: 34px; background: var(--bg); border-radius: 3.5px; }
+
+.s12-h { font-size: clamp(36px, 4.5vw, 60px); font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
+.s12-h em { font-style: normal; color: var(--green); }
+
+.s12-sub { font-size: 17px; color: var(--ink-3); max-width: 46ch; line-height: 1.55; }
+
+.s12-contacts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.s12-contact {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-3);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 18px;
+}
+.s12-contact strong { color: var(--ink); font-weight: 600; }
+
+.s12-tagline {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-5);
+}
+
+/* ── Progress dots ────────────────────────────────── */
+#dots {
+  position: fixed; top: 28px; right: 36px; z-index: 100;
+  display: flex; gap: 6px; align-items: center;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--line);
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.dot.active { background: var(--ink-3); transform: scale(1.3); }
+
+/* ── Slide number top-left ────────────────────────── */
+#slide-num {
+  position: fixed; top: 24px; left: 36px; z-index: 100;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-5);
+  letter-spacing: 0.06em;
+}
+</style>
+</head>
+<body>
+
+<div id="slide-num">01 / 12</div>
+
+<div id="dots"></div>
+
+<div id="deck">
+
+  <!-- ── S1 COVER ───────────────────────────────── -->
+  <div class="slide active" id="s1">
+    <div class="glow-green" style="top:-120px;left:-80px;"></div>
+    <div class="inner">
+      <div class="s1-brand">
+        <div class="s1-mark"><div class="b"></div><div class="b"></div></div>
+        <span class="s1-brand-name">Curtain</span>
+        <span class="s1-badge">Closed Beta</span>
+      </div>
+      <div class="s1-main">
+        <div class="s1-tagline">Decision Infrastructure · AI Agents</div>
+        <h1 class="s1-h1">Every agent action.<br/><em>Accountable.</em></h1>
+        <p class="s1-sub">Curtain sits between your AI agents and the world — every action is policy-checked, reviewable, and reversible, with a complete audit trail.</p>
+        <div class="s1-pills">
+          <span class="s1-pill">skill matching</span>
+          <span class="s1-pill">&lt;40ms p99</span>
+          <span class="s1-pill">human-in-the-loop</span>
+          <span class="s1-pill">full audit trail</span>
+          <span class="s1-pill">SOC 2 Type II</span>
+        </div>
+      </div>
+      <div class="s1-foot">
+        <div class="s1-foot-l">curtainai.in · founders@curtainai.in</div>
+        <div class="s1-conf">
+          <span style="font-family:var(--mono);font-size:11px;color:var(--ink-4);">confidence</span>
+          <div class="s1-conf-bar"><div class="s1-conf-fill"></div></div>
+          <span class="s1-conf-label">97%</span>
+          <span class="tag tag-green" style="margin-left:4px;">approved</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S2 PROBLEM ─────────────────────────────── -->
+  <div class="slide" id="s2">
+    <div class="inner">
+      <div>
+        <div class="slide-label">The problem</div>
+        <h2 class="title">AI agents are shipping to production.<br/><em style="font-style:normal;color:var(--ink-3);">Governance isn't.</em></h2>
+      </div>
+      <div class="s2-grid">
+        <div class="s2-card">
+          <div class="s2-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3>No oversight layer</h3>
+          <p>Agents take irreversible actions — sending emails, processing refunds, modifying records — with zero human checkpoint.</p>
+        </div>
+        <div class="s2-card">
+          <div class="s2-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <h3>No audit trail</h3>
+          <p>When something goes wrong, there's no record of why the agent decided what it did. Debugging is impossible. Compliance is a nightmare.</p>
+        </div>
+        <div class="s2-card">
+          <div class="s2-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>No policy layer</h3>
+          <p>Guardrails are hardcoded in prompts. They drift, hallucinate, and can't scale across hundreds of agent actions or team members.</p>
+        </div>
+      </div>
+      <div class="s2-incident">
+        <div class="s2-incident-dot"></div>
+        <p><strong>Real incident, beta prospect:</strong> "Our agent sent $14,000 in refunds to the wrong customer segment. We had no logs, no rollback, and no idea which prompt change caused it."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S3 SOLUTION ────────────────────────────── -->
+  <div class="slide" id="s3">
+    <div class="glow-green" style="bottom:-100px;right:-80px;"></div>
+    <div class="inner">
+      <div>
+        <div class="slide-label">The solution</div>
+        <h2 class="title">One layer between your agent and the world.</h2>
+        <p class="sub">Curtain is a decision middleware for AI agents. It intercepts every action, checks it against your policies, and either approves, escalates, or blocks — in under 40ms.</p>
+      </div>
+
+      <div class="s3-arch">
+        <div class="s3-node">
+          <div class="s3-box s3-box-agent">Your AI Agent</div>
+          <div class="s3-box-label">any model / framework</div>
+        </div>
+        <div class="s3-arrow">
+          <div class="s3-arrow-line">
+            <svg width="80" height="14" viewBox="0 0 80 14" fill="none"><line x1="0" y1="7" x2="70" y2="7" stroke="rgba(252,251,248,0.15)" stroke-width="1.5" stroke-dasharray="4 3"/><polyline points="62,2 72,7 62,12" stroke="rgba(252,251,248,0.25)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="s3-arrow-label">POST /query</div>
+        </div>
+        <div class="s3-node">
+          <div class="s3-box s3-box-curtain">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <div style="width:18px;height:18px;background:var(--ink);border-radius:4px;display:flex;align-items:center;justify-content:center;gap:3px;flex-shrink:0;">
+                <div style="width:3.5px;height:10px;background:var(--bg);border-radius:1.5px;"></div>
+                <div style="width:3.5px;height:10px;background:var(--bg);border-radius:1.5px;"></div>
+              </div>
+              Curtain
+            </div>
+          </div>
+          <div class="s3-box-label">policy engine</div>
+        </div>
+        <div class="s3-arrow">
+          <div class="s3-arrow-line">
+            <svg width="80" height="14" viewBox="0 0 80 14" fill="none"><line x1="0" y1="7" x2="70" y2="7" stroke="rgba(252,251,248,0.15)" stroke-width="1.5" stroke-dasharray="4 3"/><polyline points="62,2 72,7 62,12" stroke="rgba(252,251,248,0.25)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="s3-arrow-label">approved / escalate</div>
+        </div>
+        <div class="s3-node">
+          <div class="s3-box s3-box-world">The World</div>
+          <div class="s3-box-label">APIs, databases, users</div>
+        </div>
+      </div>
+
+      <div class="s3-props">
+        <div class="s3-prop">
+          <div class="s3-prop-num">01 · Query</div>
+          <h4>Agent sends a plain-text action</h4>
+          <p>No SDK required. One REST call — the query string is whatever your agent was about to do.</p>
+        </div>
+        <div class="s3-prop">
+          <div class="s3-prop-num">02 · Match</div>
+          <h4>Hybrid vector + keyword search</h4>
+          <p>Curtain matches the query against your skill corpus and returns a confidence score in &lt;40ms.</p>
+        </div>
+        <div class="s3-prop">
+          <div class="s3-prop-num">03 · Decide</div>
+          <h4>Approve, escalate, or block</h4>
+          <p>Based on confidence thresholds you set. Every decision is logged to an immutable audit trail.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S4 HOW IT WORKS ────────────────────────── -->
+  <div class="slide" id="s4">
+    <div class="inner">
+      <div>
+        <div class="slide-label">How it works</div>
+        <h2 class="title">One API call. Full governance.</h2>
+      </div>
+      <div class="s4-layout">
+        <div class="s4-code">
+          <div class="s4-code-bar">
+            <div class="s4-dot" style="background:#FF5F57;"></div>
+            <div class="s4-dot" style="background:#FFBD2E;"></div>
+            <div class="s4-dot" style="background:#28C840;"></div>
+            <span class="s4-code-title">POST /api/v1/query</span>
+          </div>
+          <div class="s4-code-body">
+<span class="cm">// 1. Agent sends an action intent</span>
+<span class="kw">POST</span> /api/v1/query
+{
+  <span class="key">"query"</span>: <span class="str">"send refund to customer #4821"</span>
+}
+
+<span class="sep">────────────────────────────</span>
+<span class="cm">// 2. Curtain responds in &lt;40ms</span>
+{
+  <span class="key">"decision"</span>: <span class="str">"escalate"</span>,
+  <span class="key">"skill"</span>:    <span class="str">"process-refund"</span>,
+  <span class="key">"confidence"</span>: <span class="val-g">0.97</span>,
+  <span class="key">"escalate"</span>:  <span class="val-o">true</span>,
+  <span class="key">"reason"</span>:   <span class="str">"high-value action, review required"</span>
+}
+          </div>
+        </div>
+
+        <div class="s4-steps">
+          <div class="s4-step">
+            <div class="s4-step-num">1</div>
+            <div class="s4-step-body">
+              <h4>Define skills in plain English</h4>
+              <p>Write natural-language policies — "Process refunds under $500 automatically. Flag amounts above." No DSL, no config files.</p>
+            </div>
+          </div>
+          <div class="s4-step">
+            <div class="s4-step-num">2</div>
+            <div class="s4-step-body">
+              <h4>Agent POSTs every action intent</h4>
+              <p>Before executing anything, the agent asks Curtain. Works with any LLM, any framework — OpenAI, Anthropic, LangChain, custom.</p>
+            </div>
+          </div>
+          <div class="s4-step">
+            <div class="s4-step-num">3</div>
+            <div class="s4-step-body">
+              <h4>Curtain matches, scores, and routes</h4>
+              <p>Hybrid vector + Jaccard search finds the right skill. A confidence score determines auto-approve or human review.</p>
+            </div>
+          </div>
+          <div class="s4-step">
+            <div class="s4-step-num">4</div>
+            <div class="s4-step-body">
+              <h4>Every decision logged forever</h4>
+              <p>Immutable audit trail. Overrides train future matching. Full query history with confidence trends.</p>
+            </div>
+          </div>
+          <div class="s4-stat">
+            <div class="s4-stat-num">&lt;40ms</div>
+            <div class="s4-stat-label">p99 latency — invisible to your users</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S5 PRODUCT ─────────────────────────────── -->
+  <div class="slide" id="s5">
+    <div class="inner">
+      <div>
+        <div class="slide-label">Product</div>
+        <h2 class="title">Three pillars. Complete governance stack.</h2>
+      </div>
+      <div class="s5-grid">
+        <div class="s5-card">
+          <div class="s5-icon s5-icon-g">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          </div>
+          <h3>Skill Library</h3>
+          <p>Plain-English policies your agent follows. Version-controlled, reviewable, and auditable.</p>
+          <div class="s5-list">
+            <div class="s5-item">Natural language — no DSL or config</div>
+            <div class="s5-item">State machine: pending → active → disabled</div>
+            <div class="s5-item">Full version history + restore</div>
+            <div class="s5-item">Bulk import from OpenAI, LangChain, MCP</div>
+          </div>
+        </div>
+        <div class="s5-card">
+          <div class="s5-icon s5-icon-b">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>Decision Engine</h3>
+          <p>Hybrid vector + Jaccard search with RRF fusion. Confidence scoring per query.</p>
+          <div class="s5-list">
+            <div class="s5-item">pgvector embeddings (text-embedding-3-small)</div>
+            <div class="s5-item">RRF fusion — tunable alpha per workspace</div>
+            <div class="s5-item">&lt;40ms p99 · handles 200 active skills</div>
+            <div class="s5-item">Graceful fallback to Jaccard on embed failure</div>
+          </div>
+        </div>
+        <div class="s5-card">
+          <div class="s5-icon s5-icon-o">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h3>Human-in-the-Loop</h3>
+          <p>Flag any decision for review. Override and correct. Every correction improves future matching.</p>
+          <div class="s5-list">
+            <div class="s5-item">Configurable escalation thresholds</div>
+            <div class="s5-item">Real-time review queue in dashboard</div>
+            <div class="s5-item">Override feedback trains the model</div>
+            <div class="s5-item">Full analytics: p50/p90/p99 confidence per skill</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S6 WHY NOW ─────────────────────────────── -->
+  <div class="slide" id="s6">
+    <div class="inner">
+      <div>
+        <div class="slide-label">Why now</div>
+        <h2 class="title">The agent economy is here.<br/><em style="font-style:normal;color:var(--ink-3);">The governance layer isn't.</em></h2>
+      </div>
+      <div class="s6-layout">
+        <div class="s6-stats">
+          <div class="s6-stat-row">
+            <div class="s6-num">78<span>%</span></div>
+            <div class="s6-desc"><strong>of enterprise teams</strong> plan to deploy autonomous AI agents in 2025 — up from 18% in 2023. (Gartner)</div>
+          </div>
+          <div class="s6-stat-row">
+            <div class="s6-num">$4.1<span>B</span></div>
+            <div class="s6-desc"><strong>invested in agentic AI infrastructure</strong> in the last 12 months. The infrastructure layer is the next wave.</div>
+          </div>
+          <div class="s6-stat-row">
+            <div class="s6-num">0</div>
+            <div class="s6-desc"><strong>enterprise-grade governance layers</strong> exist at the action level today. Compliance tools audit logs after the fact. We intercept before.</div>
+          </div>
+        </div>
+        <div class="s6-signals">
+          <div class="s6-signal">
+            <div class="s6-signal-dot" style="background:var(--green);box-shadow:0 0 8px rgba(52,199,89,0.4);"></div>
+            <div>
+              <div class="s6-signal-label" style="color:var(--green);margin-bottom:5px;">Regulatory tailwind</div>
+              <p>EU AI Act (Aug 2026) requires audit trails for high-risk AI systems. US AI executive order mandates traceability for federal agentic systems.</p>
+            </div>
+          </div>
+          <div class="s6-signal">
+            <div class="s6-signal-dot" style="background:var(--blue);box-shadow:0 0 8px rgba(10,132,255,0.4);"></div>
+            <div>
+              <div class="s6-signal-label" style="color:var(--blue);margin-bottom:5px;">Infrastructure moment</div>
+              <p>Every major AI lab now ships an agent framework — Claude, GPT-4o, Gemini. <strong>None of them have a governance layer.</strong> That's the gap we fill.</p>
+            </div>
+          </div>
+          <div class="s6-signal">
+            <div class="s6-signal-dot" style="background:var(--orange);box-shadow:0 0 8px rgba(255,149,0,0.4);"></div>
+            <div>
+              <div class="s6-signal-label" style="color:var(--orange);margin-bottom:5px;">Enterprise pain, now</div>
+              <p>Our beta waitlist includes companies in fintech, healthcare, and legal — all blocked from deploying agents due to compliance requirements.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S7 MARKET ──────────────────────────────── -->
+  <div class="slide" id="s7">
+    <div class="glow-blue" style="top:-160px;right:-120px;"></div>
+    <div class="inner">
+      <div>
+        <div class="slide-label">Market size</div>
+        <h2 class="title">Every team shipping an AI agent is a customer.</h2>
+      </div>
+      <div class="s7-layout">
+        <div class="s7-circles">
+          <div class="s7-ring s7-ring-tam">
+            <div style="position:absolute;top:16px;font-family:var(--mono);font-size:10px;color:rgba(10,132,255,0.5);letter-spacing:0.06em;text-transform:uppercase;">TAM</div>
+          </div>
+          <div class="s7-ring s7-ring-sam">
+            <div style="position:absolute;top:16px;font-family:var(--mono);font-size:10px;color:rgba(10,132,255,0.6);letter-spacing:0.06em;text-transform:uppercase;">SAM</div>
+          </div>
+          <div class="s7-ring s7-ring-som">
+            <div style="font-family:var(--mono);font-size:10px;color:rgba(10,132,255,0.8);letter-spacing:0.06em;text-transform:uppercase;">SOM</div>
+          </div>
+        </div>
+        <div class="s7-markets">
+          <div class="s7-market">
+            <div class="s7-market-tag">TAM</div>
+            <div class="s7-market-num">$18B</div>
+            <div class="s7-market-desc"><strong>AI governance & compliance market</strong> by 2028. Includes audit, policy, and risk tools for AI systems.</div>
+          </div>
+          <div class="s7-market">
+            <div class="s7-market-tag">SAM</div>
+            <div class="s7-market-num">$3.2B</div>
+            <div class="s7-market-desc"><strong>Developer tooling for agentic AI.</strong> Teams actively building and deploying autonomous agent pipelines.</div>
+          </div>
+          <div class="s7-market">
+            <div class="s7-market-tag">SOM</div>
+            <div class="s7-market-num">$420M</div>
+            <div class="s7-market-desc"><strong>4,200 companies</strong> currently running AI agents in production — our ICP. 12-month reachable with current GTM.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S8 BUSINESS MODEL ──────────────────────── -->
+  <div class="slide" id="s8">
+    <div class="inner">
+      <div>
+        <div class="slide-label">Business model</div>
+        <h2 class="title">Usage-based. Scales with the agent.</h2>
+      </div>
+      <div class="s8-grid">
+        <div class="s8-plan">
+          <div class="s8-plan-label" style="color:var(--ink-4);">Audience</div>
+          <div class="s8-plan-price">$0<small>/mo</small></div>
+          <div class="s8-plan-vol">50,000 queries / mo</div>
+          <div class="s8-plan-features">
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Full query engine</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Skill library — up to 50 skills</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>7-day query history</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Community support</div>
+          </div>
+        </div>
+        <div class="s8-plan featured">
+          <div class="s8-plan-label" style="color:var(--green);">Front Row · Most popular</div>
+          <div class="s8-plan-price">$1,900<small>/mo</small></div>
+          <div class="s8-plan-vol">5,000,000 queries / mo</div>
+          <div class="s8-plan-features">
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Everything in Audience</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Unlimited skills</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Full analytics + confidence trends</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Human review queue + overrides</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Priority support · SLA</div>
+          </div>
+        </div>
+        <div class="s8-plan">
+          <div class="s8-plan-label" style="color:var(--blue);">Encore · Enterprise</div>
+          <div class="s8-plan-price" style="font-size:28px;padding-top:6px;">Custom</div>
+          <div class="s8-plan-vol">Unlimited volume</div>
+          <div class="s8-plan-features">
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Everything in Front Row</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>On-prem / VPC deployment</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>HIPAA BAA · SSO · Audit export</div>
+            <div class="s8-feat"><div class="s8-feat-dot"><svg viewBox="0 0 8 8" fill="none" stroke="#34C759" stroke-width="1.5"><polyline points="1.5,4 3,5.5 6.5,2"/></svg></div>Dedicated CSM + SLA</div>
+          </div>
+        </div>
+      </div>
+      <div class="s8-metrics">
+        <div class="s8-metric"><div class="s8-metric-num">82%</div><div class="s8-metric-label">Target gross margin</div></div>
+        <div class="s8-metric"><div class="s8-metric-num">3.4×</div><div class="s8-metric-label">Avg expansion in 12 months</div></div>
+        <div class="s8-metric"><div class="s8-metric-num">NRR</div><div class="s8-metric-label">Target &gt;130% net revenue retention</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S9 TRACTION ────────────────────────────── -->
+  <div class="slide" id="s9">
+    <div class="glow-green" style="top:-100px;left:-60px;"></div>
+    <div class="inner">
+      <div>
+        <div class="slide-label">Traction</div>
+        <h2 class="title">Closed beta. Paying customers. Growing fast.</h2>
+      </div>
+      <div class="s9-metrics">
+        <div class="s9-metric">
+          <div class="s9-num"><span class="accent">12</span></div>
+          <div class="s9-label">Companies in closed beta</div>
+          <div class="s9-delta">↑ 4 added this month</div>
+        </div>
+        <div class="s9-metric">
+          <div class="s9-num"><span class="accent">2.4</span>M</div>
+          <div class="s9-label">Queries processed to date</div>
+          <div class="s9-delta">↑ 38% WoW growth</div>
+        </div>
+        <div class="s9-metric">
+          <div class="s9-num"><span class="accent">3</span></div>
+          <div class="s9-label">Enterprise pilots in contract</div>
+          <div class="s9-delta">↑ $85K ARR pipeline</div>
+        </div>
+        <div class="s9-metric">
+          <div class="s9-num"><span class="accent">97</span><span style="font-size:24px;color:var(--ink-3);">%</span></div>
+          <div class="s9-label">Avg decision confidence</div>
+          <div class="s9-delta">↑ NPS score: 72</div>
+        </div>
+      </div>
+      <div class="s9-quotes">
+        <div class="s9-quote">
+          <div class="s9-quote-text">We replaced 800 lines of prompt guardrails with 12 Curtain skills. Our agents now ship features, not incidents.</div>
+          <div class="s9-quote-attr">Head of AI Engineering — Series B fintech, beta customer</div>
+        </div>
+        <div class="s9-quote">
+          <div class="s9-quote-text">Curtain is the first tool that actually lets us put AI agents in front of customers. Our compliance team finally said yes.</div>
+          <div class="s9-quote-attr">CTO — healthtech startup, enterprise pilot</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S10 TEAM ───────────────────────────────── -->
+  <div class="slide" id="s10">
+    <div class="inner">
+      <div>
+        <div class="slide-label">Team</div>
+        <h2 class="title">Built by people who've shipped AI at scale.</h2>
+      </div>
+      <div class="s10-grid">
+        <div class="s10-card">
+          <div class="s10-avatar">N</div>
+          <div class="s10-body">
+            <div class="s10-name">Naman Dogra</div>
+            <div class="s10-role">Co-founder · CEO</div>
+            <div class="s10-bio">Prev built AI infrastructure at scale. Deep background in developer tooling, API design, and enterprise GTM. Obsessed with the gap between AI capability and production safety.</div>
+            <div class="s10-tags">
+              <span class="s10-tag">AI Infrastructure</span>
+              <span class="s10-tag">Developer Tools</span>
+              <span class="s10-tag">Enterprise GTM</span>
+            </div>
+          </div>
+        </div>
+        <div class="s10-card">
+          <div class="s10-avatar">C</div>
+          <div class="s10-body">
+            <div class="s10-name">Co-founder</div>
+            <div class="s10-role">Co-founder · CTO</div>
+            <div class="s10-bio">Systems engineer background. Designed the hybrid search engine and pgvector pipeline powering Curtain's sub-40ms decision latency. Former open-source contributor to LLM tooling.</div>
+            <div class="s10-tags">
+              <span class="s10-tag">Vector Search</span>
+              <span class="s10-tag">Systems Engineering</span>
+              <span class="s10-tag">Supabase / Postgres</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="s10-advisors">
+        <div class="s10-adv-label">Advisors</div>
+        <div class="s10-adv-list">
+          <span class="tag tag-dim">AI Safety researcher</span>
+          <span class="tag tag-dim">Ex-Stripe infrastructure lead</span>
+          <span class="tag tag-dim">Enterprise compliance counsel</span>
+          <span class="tag tag-dim">Former YC partner</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S11 THE ASK ────────────────────────────── -->
+  <div class="slide" id="s11">
+    <div class="inner">
+      <div>
+        <div class="slide-label">The ask</div>
+        <h2 class="title">Raising to build the standard.</h2>
+        <p class="sub">We have product-market fit signals, paying customers, and a clear path to $1M ARR. This round accelerates the engine and GTM.</p>
+      </div>
+      <div class="s11-layout">
+        <div>
+          <div class="s11-raise">
+            <div>
+              <div class="s11-amount">$2.5M</div>
+              <div class="s11-round">Seed round · SAFE at $12M cap</div>
+            </div>
+            <div class="divider"></div>
+            <div class="s11-use">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--ink-4);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;">Use of funds</div>
+              <div class="s11-bucket">
+                <div class="s11-bucket-pct">40%</div>
+                <div class="s11-bucket-bar-wrap"><div class="s11-bucket-bar" style="width:40%;background:var(--blue);"></div></div>
+                <div class="s11-bucket-label">Engineering — query engine, MCP</div>
+              </div>
+              <div class="s11-bucket">
+                <div class="s11-bucket-pct">35%</div>
+                <div class="s11-bucket-bar-wrap"><div class="s11-bucket-bar" style="width:35%;background:var(--green);"></div></div>
+                <div class="s11-bucket-label">GTM — first AEs, developer relations</div>
+              </div>
+              <div class="s11-bucket">
+                <div class="s11-bucket-pct">25%</div>
+                <div class="s11-bucket-bar-wrap"><div class="s11-bucket-bar" style="width:25%;background:var(--orange);"></div></div>
+                <div class="s11-bucket-label">Infra & compliance — SOC 2, ISO 27001</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="s11-milestones">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--ink-4);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;">18-month milestones</div>
+          <div class="s11-milestone">
+            <div class="s11-ms-date">Q3 '25</div>
+            <div class="s11-ms-text"><strong>Public launch</strong> — exit closed beta, open waitlist, self-serve onboarding live</div>
+          </div>
+          <div class="s11-milestone">
+            <div class="s11-ms-date">Q4 '25</div>
+            <div class="s11-ms-text"><strong>$250K ARR</strong> — 8 paying Front Row customers, 2 enterprise contracts closed</div>
+          </div>
+          <div class="s11-milestone">
+            <div class="s11-ms-date">Q1 '26</div>
+            <div class="s11-ms-text"><strong>SOC 2 Type II certified</strong> — unlocks federal, healthtech, and fintech enterprise deals</div>
+          </div>
+          <div class="s11-milestone">
+            <div class="s11-ms-date">Q2 '26</div>
+            <div class="s11-ms-text"><strong>$1M ARR</strong> — 3 AEs hired, MCP native integration shipped, Series A ready</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S12 CLOSE ──────────────────────────────── -->
+  <div class="slide" id="s12">
+    <div class="glow-green" style="top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;"></div>
+    <div class="inner">
+      <div class="s12-mark"><div class="b"></div><div class="b"></div></div>
+      <h2 class="s12-h">The agent economy needs<br/>a decision layer.<br/><em>We're building it.</em></h2>
+      <p class="s12-sub">Curtain is the infrastructure that lets teams ship AI agents with confidence — not crossed fingers.</p>
+      <div class="s12-contacts">
+        <div class="s12-contact"><strong>curtainai.in</strong></div>
+        <div class="s12-contact"><strong>founders@curtainai.in</strong></div>
+        <div class="s12-contact">Closed beta · accepting 5 new workspaces / month</div>
+      </div>
+      <div class="s12-tagline">Every agent action. Accountable.</div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- Nav -->
+<div id="nav">
+  <button id="prev-btn" disabled title="Previous (←)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div id="counter">01 / 12</div>
+  <button id="next-btn" title="Next (→)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div style="width:1px;height:16px;background:var(--line);margin:0 4px;"></div>
+  <button id="fullscreen-btn" title="Fullscreen (F)">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+  </button>
+</div>
+
+<script>
+const TOTAL = 12;
+let current = 0;
+
+const slides   = document.querySelectorAll('.slide');
+const dotsEl   = document.getElementById('dots');
+const counter  = document.getElementById('counter');
+const slideNum = document.getElementById('slide-num');
+const prevBtn  = document.getElementById('prev-btn');
+const nextBtn  = document.getElementById('next-btn');
+
+// build dots
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+});
+
+function goTo(n) {
+  slides[current].className = 'slide prev';
+  slides[current].addEventListener('transitionend', () => {
+    slides[current].classList.remove('prev');
+  }, { once: true });
+  current = n;
+  slides.forEach((s, i) => {
+    s.className = i === current ? 'slide active' : (i < current ? 'slide' : 'slide');
+  });
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  const label = String(current + 1).padStart(2, '0') + ' / ' + String(TOTAL).padStart(2, '0');
+  counter.textContent = label;
+  slideNum.textContent = label;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === TOTAL - 1;
+}
+
+prevBtn.addEventListener('click', () => current > 0 && goTo(current - 1));
+nextBtn.addEventListener('click', () => current < TOTAL - 1 && goTo(current + 1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); current < TOTAL - 1 && goTo(current + 1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); current > 0        && goTo(current - 1); }
+  if (e.key === 'f' || e.key === 'F') document.getElementById('fullscreen-btn').click();
+});
+
+document.getElementById('fullscreen-btn').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+});
+
+// swipe support
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) dx < 0 ? (current < TOTAL-1 && goTo(current+1)) : (current > 0 && goTo(current-1));
+});
+</script>
+
+</body>
+</html>

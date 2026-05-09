@@ -29,7 +29,7 @@ export interface ConfirmResult {
 
 // ─── In-memory job queue ──────────────────────────────────────────────────────
 
-export type SyncJobStatus = 'running' | 'done' | 'error';
+export type SyncJobStatus = 'running' | 'done' | 'error' | 'cancelled';
 
 export interface SyncProgress {
   fetched: number;  // threads retrieved from provider
@@ -43,6 +43,7 @@ export interface SyncJob {
   workspace_id:   string;
   status:         SyncJobStatus;
   progress:       SyncProgress;
+  cancelled:      boolean;
   result?:        SyncPreview;
   error?:         string;
   created_at:     number;
@@ -140,6 +141,7 @@ export const integrationService = {
       workspace_id: workspaceId,
       status: 'running',
       progress: { fetched: 0, total: 0, done: 0 },
+      cancelled: false,
       created_at: Date.now(),
     };
     syncJobs.set(jobId, job);
@@ -155,6 +157,15 @@ export const integrationService = {
     const job = syncJobs.get(jobId);
     if (!job) throw new AppError('sync job not found or expired', 404);
     return job;
+  },
+
+  cancelSync(jobId: string, workspaceId: string): void {
+    const job = syncJobs.get(jobId);
+    if (!job) throw new AppError('sync job not found or expired', 404);
+    if (job.workspace_id !== workspaceId) throw new AppError('sync job not found or expired', 404);
+    if (job.status !== 'running') throw new AppError('sync job is not running', 400);
+    job.cancelled = true;
+    job.status = 'cancelled';
   },
 
   async _runSyncJob(job: SyncJob, integration: IntegrationRow, limit: number, deepExtract = false): Promise<void> {
@@ -210,9 +221,12 @@ export const integrationService = {
           }
         });
         job.progress.done = Math.min(i + EXTRACT_BATCH, items.length);
+        if (job.cancelled) break;
         // Brief pause between batches to avoid overwhelming the rate limit
         if (i + EXTRACT_BATCH < items.length) await sleep(1000);
       }
+
+      if (job.cancelled) return;
 
       // Deduplicate: first by exact name, then by Jaccard on trigger_condition
       const byName = new Map<string, ExtractedSkill>();

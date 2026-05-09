@@ -136,6 +136,7 @@ function App() {
     extraction: 'Extraction Studio', analytics: 'Analytics',
     simulation: 'Simulation Lab', docs: 'Python SDK Docs',
     connections: 'Connections',
+    mcp: 'MCP Console',
     live: 'Live Feed',
   };
   const crumb = crumbMap[page] || page;
@@ -151,6 +152,7 @@ function App() {
   else if (page === 'analytics') body = <AnalyticsPage goto={goto} />;
   else if (page === 'simulation') body = <SimulationPage />;
   else if (page === 'connections') body = <ConnectionsPage goto={goto} />;
+  else if (page === 'mcp') body = <McpConsolePage goto={goto} />;
   else if (page === 'live') body = <LiveFeedPage />;
   else if (page === 'docs') body = <DocsPage />;
   else body = null;

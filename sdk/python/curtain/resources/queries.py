@@ -136,7 +136,7 @@ class QueriesResource:
             "/query/override",
             json={"query_id": query_id, "corrected_decision": corrected_decision},
         )
-        return _override_adapter.validate_python(data)
+        return _override_adapter.validate_python(data["override"] if isinstance(data, dict) and "override" in data else data)
 
 
 # ─── Async mirror ─────────────────────────────────────────────────────────────
@@ -211,4 +211,4 @@ class AsyncQueriesResource:
             "/query/override",
             json={"query_id": query_id, "corrected_decision": corrected_decision},
         )
-        return _override_adapter.validate_python(data)
+        return _override_adapter.validate_python(data["override"] if isinstance(data, dict) and "override" in data else data)
