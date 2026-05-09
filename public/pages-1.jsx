@@ -207,6 +207,7 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
   const [skills, setSkills] = React.useState([]);
   const [queries, setQueries] = React.useState([]);
   const [analytics, setAnalytics] = React.useState(null);
+  const [mcpToolCount, setMcpToolCount] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [err, setErr] = React.useState(null);
 
@@ -224,6 +225,10 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
         const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         const an = await window.api.getWorkspaceAnalytics(from);
         setAnalytics(an);
+      } catch (_) {}
+      try {
+        const tools = await window.api.exportSkills('mcp_tools', 'active');
+        setMcpToolCount(Array.isArray(tools) ? tools.length : 0);
       } catch (_) {}
     } catch (e) {
       setErr(e.message);
@@ -401,7 +406,7 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
         </div>
       </div>
 
-      <div className="dash-cards-3" style={{ marginTop: 18 }}>
+      <div className="dash-cards-3" style={{ marginTop: 18, gridTemplateColumns: 'repeat(4, 1fr)' }}>
         {[
           { title: 'Extraction Studio', count: null, sub: 'Learn from conversations instantly', icon: 'sparkle', cta: 'Open studio', go: 'extraction' },
           { title: 'Escalations', count: escalatedCount > 0 ? escalatedCount : null, sub: escalatedCount > 0 ? `of ${queries.length} recent queries` : 'No escalations recently', icon: 'arrowup', cta: 'See activity', go: 'activity' },
@@ -422,6 +427,27 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
             </div>
           </div>
         ))}
+
+        {/* MCP Server card */}
+        <div className="card" style={{ cursor: 'pointer' }} onClick={() => goto('mcp')}>
+          <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 8, background: 'var(--accent-soft)', border: '1px solid var(--accent-soft)', display: 'grid', placeItems: 'center', color: 'var(--accent-ink)' }}>
+              <Icon name="mcp" size={17} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>MCP Server</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--success)', background: 'var(--success-soft)', borderRadius: 4, padding: '1px 6px' }}>
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--success)', display: 'inline-block' }}></span>Live
+                </span>
+              </div>
+              <div style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>
+                {loading ? '…' : mcpToolCount != null ? `${mcpToolCount} tool${mcpToolCount !== 1 ? 's' : ''} available` : 'Connect AI agents'}
+              </div>
+            </div>
+            <button className="btn ghost sm" style={{ flexShrink: 0 }}>Open <Icon name="arrow" size={12} /></button>
+          </div>
+        </div>
       </div>
     </div>
   );

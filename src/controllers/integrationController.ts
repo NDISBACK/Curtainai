@@ -120,3 +120,10 @@ export const gmailOAuthCallback = catchAsync(async (req: Request, res: Response)
 
   res.redirect('/app.html?connected=gmail');
 });
+
+export const cancelSync = catchAsync(async (req: Request, res: Response) => {
+  const { job_id } = req.body as { job_id?: string };
+  if (!job_id?.trim()) throw new AppError('job_id is required', 400);
+  integrationService.cancelSync(job_id, req.workspace.id);
+  sendSuccess(res, { cancelled: true });
+});

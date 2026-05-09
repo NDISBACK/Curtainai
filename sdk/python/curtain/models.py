@@ -242,7 +242,7 @@ class ExtractedSkill(_FrozenBase):
     name: str
     trigger_condition: str
     decision: str
-    conditions: Optional[Dict[str, Any]] = None
+    conditions: Optional[List[str]] = None
     escalation_required: bool = False
     confidence: float = 0.5
 

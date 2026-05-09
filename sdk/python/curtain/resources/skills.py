@@ -114,7 +114,7 @@ class SkillsResource:
     def approve(self, skill_id: str) -> Skill:
         """Promote a ``pending_review`` skill to ``active``."""
         data = self._http.patch(f"/skills/{skill_id}/approve", json={})
-        return _skill_adapter.validate_python(data)
+        return _skill_adapter.validate_python(data["skill"] if isinstance(data, dict) and "skill" in data else data)
 
     def disable(self, skill_id: str) -> Skill:
         """Disable an active skill (it will no longer match queries)."""
@@ -324,7 +324,7 @@ class AsyncSkillsResource:
 
     async def approve(self, skill_id: str) -> Skill:
         data = await self._http.patch(f"/skills/{skill_id}/approve", json={})
-        return _skill_adapter.validate_python(data)
+        return _skill_adapter.validate_python(data["skill"] if isinstance(data, dict) and "skill" in data else data)
 
     async def disable(self, skill_id: str) -> Skill:
         data = await self._http.patch(f"/skills/{skill_id}/disable", json={})
