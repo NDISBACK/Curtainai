@@ -247,6 +247,7 @@ function Tape() {
 
 // ─── Top nav ───────────────────────────────────────────────────────
 function TopNav({ page, setPage, openWaitlist }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const links = [
     { id: 'home', label: 'Product' },
     { id: 'features', label: 'Features' },
@@ -256,15 +257,16 @@ function TopNav({ page, setPage, openWaitlist }) {
     { id: 'pricing', label: 'Pricing', locked: true },
     { id: 'company', label: 'Company' },
   ];
+  const handleNav = (id) => { setPage(id); setMobileOpen(false); };
   return (
     <header className="ps-nav">
       <div className="ps-nav-inner">
         {/* Brand — top left */}
-        <a href="#home" className="ps-brand" onClick={(e) => { e.preventDefault(); setPage('home'); }}>
+        <a href="#home" className="ps-brand" onClick={(e) => { e.preventDefault(); handleNav('home'); }}>
           <BrandMark size={22} />
           Curtain <small>Beta</small>
         </a>
-        {/* Dashboard button — immediately after brand, top left */}
+        {/* Dashboard button — immediately after brand */}
         <a href="/app.html" className="ps-dash-btn" title="Open the real Curtain dashboard">
           Test Dashboard <Ic.arrow style={{ width: 11, height: 11 }} />
         </a>
@@ -274,7 +276,7 @@ function TopNav({ page, setPage, openWaitlist }) {
               disabled={Boolean(l.locked)}
               title={l.locked ? 'Pricing will be announced soon' : undefined}
               className={`ps-nav-link ${page === l.id ? 'active' : ''}`}
-              onClick={() => setPage(l.id)}>
+              onClick={() => handleNav(l.id)}>
               {l.locked ? <><Ic.lock style={{ width: 11, height: 11, marginRight: 5 }} />{l.label}</> : l.label}
             </button>
           ))}
@@ -282,7 +284,25 @@ function TopNav({ page, setPage, openWaitlist }) {
         <div className="ps-nav-cta">
           <WLButton size="sm" onClick={() => openWaitlist()} label="Get early access" />
         </div>
+        <button className="ps-burger" onClick={() => setMobileOpen(m => !m)} aria-label="Toggle menu">
+          {mobileOpen
+            ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          }
+        </button>
       </div>
+      {mobileOpen && (
+        <nav className="ps-mobile-nav ps-container">
+          {links.map(l => (
+            <button key={l.id}
+              disabled={Boolean(l.locked)}
+              className={`ps-nav-link ${page === l.id ? 'active' : ''}`}
+              onClick={() => handleNav(l.id)}>
+              {l.locked ? <><Ic.lock style={{ width: 11, height: 11, marginRight: 5 }} />{l.label}</> : l.label}
+            </button>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }

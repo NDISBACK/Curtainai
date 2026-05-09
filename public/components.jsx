@@ -107,8 +107,10 @@ const Sidebar = ({ page, setPage, workspace, skillCount, pendingCount }) => {
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
     { id: 'skills', label: 'Skills', icon: 'skills', count: skillCount },
     { id: 'extraction', label: 'Extraction Studio', icon: 'sparkle' },
+    { id: 'connections', label: 'Connections', icon: 'branch' },
     { id: 'simulation', label: 'Simulation Lab', icon: 'simulate' },
     { id: 'test', label: 'Query Console', icon: 'bolt' },
+    { id: 'live', label: 'Live Feed', icon: 'bolt' },
     { id: 'activity', label: 'Activity', icon: 'activity' },
     { id: 'analytics', label: 'Analytics', icon: 'chart' },
   ];

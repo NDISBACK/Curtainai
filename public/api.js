@@ -148,10 +148,16 @@ class CurtainAPI {
   }
 
   // ── Extract ───────────────────────────────────────────────────────────────
-  extractSkills(conversation) {
+  extractSkills(conversation, options = {}) {
+    const body = { ...options };
+    if (Array.isArray(conversation)) {
+      body.conversations = conversation;
+    } else {
+      body.conversation = conversation;
+    }
     return this._fetch('/extract', {
       method: 'POST',
-      body: JSON.stringify({ conversation }),
+      body: JSON.stringify(body),
     });
   }
 
@@ -161,6 +167,47 @@ class CurtainAPI {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  }
+
+  // ── Integrations ──────────────────────────────────────────────────────────
+  getGmailOAuthUrl() {
+    return this._fetch('/integrations/gmail/oauth/url');
+  }
+
+  listIntegrations() {
+    return this._fetch('/integrations');
+  }
+
+  createIntegration(provider, config) {
+    return this._fetch('/integrations', {
+      method: 'POST',
+      body: JSON.stringify({ provider, config }),
+    });
+  }
+
+  deleteIntegration(id) {
+    return this._fetch(`/integrations/${id}`, { method: 'DELETE' });
+  }
+
+  syncIntegration(id, limit = 200) {
+    const qs = limit !== 200 ? `?limit=${limit}` : '';
+    return this._fetch(`/integrations/${id}/sync${qs}`, { method: 'POST' });
+  }
+
+  getSyncStatus(id, jobId) {
+    return this._fetch(`/integrations/${id}/sync/status?job_id=${encodeURIComponent(jobId)}`);
+  }
+
+  confirmSync(id, skills) {
+    return this._fetch(`/integrations/${id}/sync/confirm`, {
+      method: 'POST',
+      body: JSON.stringify({ skills }),
+    });
+  }
+
+  // ── Gap Analysis ──────────────────────────────────────────────────────────
+  getGapAnalysis(limit = 200) {
+    return this._fetch(`/analytics/gaps?limit=${limit}`);
   }
 }
 

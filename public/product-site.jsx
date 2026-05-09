@@ -39,6 +39,19 @@ const App = () => {
     return () => window.removeEventListener('hashchange', onPop);
   }, []);
 
+  useEffect(() => {
+    const titles = {
+      home:      'Curtain — AI Agent Decision Management & Governance Platform',
+      features:  'Features — AI Agent Policy Enforcement & Audit Trail | Curtain',
+      docs:      'API Documentation — AI Agent Decision Infrastructure | Curtain',
+      customers: 'Customer Stories — AI Agent Governance in Production | Curtain',
+      security:  'Security & Compliance — SOC 2, GDPR, HIPAA | Curtain',
+      company:   'About Curtain — Decision Infrastructure for AI Agents',
+      changelog: 'Changelog — Curtain AI Agent Governance Platform',
+    };
+    document.title = titles[page] || titles.home;
+  }, [page]);
+
   return (
     <div className="ps">
       <Tape />

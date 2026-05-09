@@ -100,6 +100,16 @@ function App() {
     }
   }, []);
 
+  // Detect return from Gmail OAuth callback (?connected=gmail)
+  React.useEffect(() => {
+    if (!connected) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('connected')) {
+      goto('connections');
+      window.history.replaceState({}, '', '/app.html');
+    }
+  }, [connected]);
+
   // Load skill count for sidebar badge
   React.useEffect(() => {
     if (!connected) return;
@@ -125,6 +135,8 @@ function App() {
     test: 'Query Console', activity: 'Activity', settings: 'Settings',
     extraction: 'Extraction Studio', analytics: 'Analytics',
     simulation: 'Simulation Lab', docs: 'Python SDK Docs',
+    connections: 'Connections',
+    live: 'Live Feed',
   };
   const crumb = crumbMap[page] || page;
 
@@ -138,6 +150,8 @@ function App() {
   else if (page === 'extraction') body = <ExtractionStudio goto={goto} />;
   else if (page === 'analytics') body = <AnalyticsPage goto={goto} />;
   else if (page === 'simulation') body = <SimulationPage />;
+  else if (page === 'connections') body = <ConnectionsPage goto={goto} />;
+  else if (page === 'live') body = <LiveFeedPage />;
   else if (page === 'docs') body = <DocsPage />;
   else body = null;
 

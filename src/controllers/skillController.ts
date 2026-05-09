@@ -49,8 +49,9 @@ export const deleteSkill = catchAsync(async (req: Request, res: Response) => {
 export const approveSkill = catchAsync(async (req: Request, res: Response) => {
   const id = requireId(req);
   await skillService.assertOwnership(id, req.workspace.id);
-  const skill = await skillService.approve(id);
-  sendSuccess(res, skill);
+  const { skill, conflicts } = await skillService.approve(id);
+  // Always succeed — conflicts are warnings surfaced to the frontend, not blocks
+  sendSuccess(res, { skill, conflicts });
 });
 
 export const disableSkill = catchAsync(async (req: Request, res: Response) => {

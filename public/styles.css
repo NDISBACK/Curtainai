@@ -117,6 +117,8 @@ input:focus, textarea:focus, button:focus { outline: none; }
   position: sticky;
   top: 0;
   height: 100vh;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .brand {
@@ -250,6 +252,7 @@ input:focus, textarea:focus, button:focus { outline: none; }
   display: flex; align-items: center; gap: 8px;
   color: var(--ink-3);
   font-size: 13.5px;
+  min-width: 0;
 }
 .topbar-crumb .sep { color: var(--ink-5); }
 .topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
@@ -345,13 +348,17 @@ input:focus, textarea:focus, button:focus { outline: none; }
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
+  min-width: 0;
+  max-width: 100%;
 }
 .card-head {
   padding: 14px 18px;
   border-bottom: 1px solid var(--line-2);
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px;
+  min-width: 0;
 }
+.card-head > * { min-width: 0; }
 .card-title {
   font-size: 13.5px;
   font-weight: 600;
@@ -1274,6 +1281,8 @@ body[data-console="light"] .console .sample:hover { background: var(--bg-hover);
     border-bottom: 1px solid var(--line);
     padding: 8px 10px 6px;
     gap: 8px;
+    width: 100%;
+    overflow-x: hidden;
   }
   .brand { padding: 2px 4px; }
   .brand-ws { max-width: 140px; }
@@ -1281,6 +1290,7 @@ body[data-console="light"] .console .sample:hover { background: var(--bg-hover);
     flex-direction: row;
     flex-wrap: nowrap;
     overflow-x: auto;
+    max-width: 100%;
     padding-bottom: 2px;
     gap: 6px;
   }
@@ -1302,6 +1312,9 @@ body[data-console="light"] .console .sample:hover { background: var(--bg-hover);
     padding: 8px 12px;
     gap: 8px;
     flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
   .topbar-actions {
     width: 100%;
@@ -1337,6 +1350,16 @@ body[data-console="light"] .console .sample:hover { background: var(--bg-hover);
     width: 100%;
     text-align: left;
   }
+
+  /* Keep table-heavy cards from widening the viewport on mobile/tablet */
+  .table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .table th,
+  .table td { white-space: nowrap; }
 }
 
 @media (max-width: 640px) {
@@ -1380,4 +1403,34 @@ body[data-console="light"] .console .sample:hover { background: var(--bg-hover);
   .modal-overlay {
     align-items: end;
   }
+}
+
+/* ─── Dashboard home: main two-column grid ─────────── */
+.dash-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 18px;
+  min-width: 0;
+}
+.dash-main-grid > * { min-width: 0; }
+@media (max-width: 900px) {
+  .dash-main-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── Dashboard home: three-column quick-link row ──── */
+.dash-cards-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 1100px) {
+  .dash-cards-3 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .dash-cards-3 { grid-template-columns: 1fr; }
+}
+
+/* ─── Sidebar footer: hide on mobile ───────────────── */
+@media (max-width: 900px) {
+  .sidebar-footer { display: none; }
 }

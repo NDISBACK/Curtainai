@@ -295,7 +295,7 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
           color={analytics?.escalation_rate <= 0.2 ? 'var(--success)' : analytics?.escalation_rate > 0.4 ? 'var(--danger)' : undefined} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1fr)', gap: 18 }}>
+      <div className="dash-main-grid">
         <div className="card">
           <div className="card-head">
             <div>
@@ -401,7 +401,7 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginTop: 18 }}>
+      <div className="dash-cards-3" style={{ marginTop: 18 }}>
         {[
           { title: 'Extraction Studio', count: null, sub: 'Learn from conversations instantly', icon: 'sparkle', cta: 'Open studio', go: 'extraction' },
           { title: 'Escalations', count: escalatedCount > 0 ? escalatedCount : null, sub: escalatedCount > 0 ? `of ${queries.length} recent queries` : 'No escalations recently', icon: 'arrowup', cta: 'See activity', go: 'activity' },
@@ -427,6 +427,63 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
   );
 };
 
+// ─── Conflict Warning Modal ───────────────────────────────────────────────────
+const ConflictWarningModal = ({ conflicts, onClose, onViewSkill }) => {
+  const typeLabel = (t) => ({
+    near_duplicate:      '⚠ Near-duplicate',
+    overlapping_trigger: '↔ Overlapping trigger',
+    decision_conflict:   '✕ Decision conflict',
+  }[t] || t);
+  const typeColor = (t) => ({
+    near_duplicate:      'var(--warning)',
+    overlapping_trigger: 'var(--accent)',
+    decision_conflict:   'var(--danger)',
+  }[t] || 'var(--ink-4)');
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+        <div className="modal-head">
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ color: 'var(--warning)', fontSize: 18 }}>⚠</span> Skill Conflicts Detected
+          </h3>
+          <button className="btn icon" onClick={onClose}><Icon name="x" size={15} /></button>
+        </div>
+        <div className="modal-body">
+          <p style={{ fontSize: 13, color: 'var(--ink-2)', marginBottom: 16 }}>
+            This skill was approved, but it overlaps with {conflicts.length} existing active skill{conflicts.length !== 1 ? 's' : ''}.
+            Review and resolve to avoid inconsistent AI responses.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {conflicts.map((c, i) => (
+              <div key={i} className="card" style={{ borderColor: typeColor(c.conflict_type) }}>
+                <div className="card-body" style={{ padding: '10px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 3 }}>{c.skill_name}</div>
+                      <div style={{ fontSize: 12, color: typeColor(c.conflict_type), fontWeight: 500 }}>
+                        {typeLabel(c.conflict_type)} · {Math.round(c.similarity * 100)}% similar
+                      </div>
+                    </div>
+                    {onViewSkill && (
+                      <button className="btn sm" onClick={() => { onViewSkill(c.skill_id); onClose(); }}>
+                        View <Icon name="arrow" size={11} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="modal-foot">
+          <button className="btn primary" onClick={onClose}>Got it — I'll review</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Skills ───────────────────────────────────────────────────────────────────
 const SkillsPage = ({ openSkill }) => {
   const [skills, setSkills] = React.useState([]);
@@ -437,6 +494,7 @@ const SkillsPage = ({ openSkill }) => {
   const [q, setQ] = React.useState('');
   const [showNew, setShowNew] = React.useState(false);
   const [actioning, setActioning] = React.useState(null); // skill id being actioned
+  const [conflictData, setConflictData] = React.useState(null); // { conflicts }
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -465,7 +523,10 @@ const SkillsPage = ({ openSkill }) => {
   const action = async (id, fn, label) => {
     setActioning(id);
     try {
-      await fn();
+      const result = await fn();
+      if (label === 'approve' && result?.conflicts?.length > 0) {
+        setConflictData({ conflicts: result.conflicts });
+      }
       await load();
     } catch (e) {
       setErr(`Failed to ${label}: ${e.message}`);
@@ -487,6 +548,14 @@ const SkillsPage = ({ openSkill }) => {
       </div>
 
       {err && <ErrorAlert message={err} onRetry={load} />}
+
+      {conflictData && (
+        <ConflictWarningModal
+          conflicts={conflictData.conflicts}
+          onClose={() => setConflictData(null)}
+          onViewSkill={openSkill}
+        />
+      )}
 
       {showNew && <NewSkillModal onClose={() => setShowNew(false)} onCreated={(sk) => { setSkills(s => [sk, ...s]); }} />}
 
@@ -586,6 +655,7 @@ const SkillDetail = ({ id, back }) => {
   const [tab, setTab] = React.useState('overview');
   const [actioning, setActioning] = React.useState(false);
   const [showEdit, setShowEdit] = React.useState(false);
+  const [conflictData, setConflictData] = React.useState(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -611,8 +681,13 @@ const SkillDetail = ({ id, back }) => {
   const doAction = async (fn, label) => {
     setActioning(true);
     try {
-      const updated = await fn();
-      setSkill(updated);
+      const result = await fn();
+      if (label === 'approve' && result?.conflicts?.length > 0) {
+        setSkill(result.skill);
+        setConflictData({ conflicts: result.conflicts });
+      } else {
+        setSkill(result?.skill ?? result);
+      }
     } catch (e) {
       setErr(`Failed to ${label}: ${e.message}`);
     } finally {
@@ -687,6 +762,14 @@ const SkillDetail = ({ id, back }) => {
 
       {showEdit && (
         <EditSkillModal skill={skill} onClose={() => setShowEdit(false)} onUpdated={(updated) => { setSkill(updated); }} />
+      )}
+
+      {conflictData && (
+        <ConflictWarningModal
+          conflicts={conflictData.conflicts}
+          onClose={() => setConflictData(null)}
+          onViewSkill={null}
+        />
       )}
 
       <div className="tabs">
@@ -835,4 +918,4 @@ const SkillDetail = ({ id, back }) => {
   );
 };
 
-Object.assign(window, { Dashboard, SkillsPage, SkillDetail, fmt, NewSkillModal, EditSkillModal });
+Object.assign(window, { Dashboard, SkillsPage, SkillDetail, fmt, NewSkillModal, EditSkillModal, ConflictWarningModal });

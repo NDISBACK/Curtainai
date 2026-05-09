@@ -97,6 +97,25 @@ export type InsertQuery = Omit<QueryRow, 'id' | 'created_at'>;
 
 export type InsertOverride = Omit<OverrideRow, 'id' | 'created_at'>;
 
+// ─── Integrations ─────────────────────────────────────────────────────────────
+
+export type IntegrationProvider = 'gmail' | 'whatsapp' | 'freshdesk';
+export type IntegrationStatus   = 'active' | 'disconnected' | 'error';
+
+export interface IntegrationRow {
+  id:             string;
+  workspace_id:   string;
+  provider:       IntegrationProvider;
+  status:         IntegrationStatus;
+  config:         Record<string, unknown>;
+  last_synced_at: string | null;
+  created_at:     string;
+  updated_at:     string;
+}
+
+export type InsertIntegration = Omit<IntegrationRow, 'id' | 'created_at' | 'updated_at'>;
+export type UpdateIntegration = Partial<Pick<IntegrationRow, 'status' | 'config' | 'last_synced_at'>>;
+
 // ─── Update types (mutable entities only) ────────────────────────────────────
 
 export type UpdateWorkspace = Partial<Omit<InsertWorkspace, 'settings'>> & {

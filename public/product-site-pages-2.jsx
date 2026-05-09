@@ -557,7 +557,7 @@ function CompanyPage({ openWaitlist }) {
       </section>
 
       <section className="ps-section">
-        <div className="ps-container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 56 }}>
+        <div className="ps-container ps-why-grid">
           <Reveal>
             <div className="ps-eyebrow">Why now</div>
             <h2 className="ps-h2">Agents are shipping faster than the controls around them.</h2>
@@ -625,7 +625,7 @@ function CompanyPage({ openWaitlist }) {
               { t: 'Security Engineer (audit & compliance)', l: 'Remote', d: 'Engineering' },
               { t: 'Founding Account Executive', l: 'NYC', d: 'Go-to-market' },
             ].map((j, i) => (
-              <div key={i} style={{ padding: '18px 22px', display: 'grid', gridTemplateColumns: '1.4fr 1fr 0.6fr auto', gap: 16, alignItems: 'center', borderBottom: i < 4 ? '1px solid var(--line-2)' : 'none' }}>
+              <div key={i} className="ps-job-row" style={{ borderBottom: i < 4 ? '1px solid var(--line-2)' : 'none' }}>
                 <div style={{ fontWeight: 500, fontSize: 15 }}>{j.t}</div>
                 <div style={{ color: 'var(--ink-3)', fontSize: 13.5 }}>{j.l}</div>
                 <div style={{ fontSize: 11.5, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)' }}>{j.d}</div>
@@ -663,7 +663,7 @@ function ChangelogPage({ openWaitlist }) {
       <section className="ps-section" style={{ paddingTop: 16 }}>
         <div className="ps-container" style={{ maxWidth: 880 }}>
           {entries.map((e, i) => (
-            <Reveal key={i} delay={i * 50} style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 32, padding: '28px 0', borderTop: i ? '1px solid var(--line)' : 'none' }}>
+            <Reveal key={i} delay={i * 50} className="ps-changelog-row" style={{ padding: '28px 0', borderTop: i ? '1px solid var(--line)' : 'none' }}>
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600 }}>v{e.v}</div>
                 <div style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 4 }}>{e.d}</div>
