@@ -207,7 +207,6 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
   const [skills, setSkills] = React.useState([]);
   const [queries, setQueries] = React.useState([]);
   const [analytics, setAnalytics] = React.useState(null);
-  const [mcpToolCount, setMcpToolCount] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [err, setErr] = React.useState(null);
 
@@ -225,10 +224,6 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
         const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         const an = await window.api.getWorkspaceAnalytics(from);
         setAnalytics(an);
-      } catch (_) {}
-      try {
-        const tools = await window.api.exportSkills('mcp_tools', 'active');
-        setMcpToolCount(Array.isArray(tools) ? tools.length : 0);
       } catch (_) {}
     } catch (e) {
       setErr(e.message);
@@ -300,7 +295,7 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
           color={analytics?.escalation_rate <= 0.2 ? 'var(--success)' : analytics?.escalation_rate > 0.4 ? 'var(--danger)' : undefined} />
       </div>
 
-      <div className="dash-main-grid">
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1fr)', gap: 18 }}>
         <div className="card">
           <div className="card-head">
             <div>
@@ -406,7 +401,7 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
         </div>
       </div>
 
-      <div className="dash-cards-4" style={{ marginTop: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginTop: 18 }}>
         {[
           { title: 'Extraction Studio', count: null, sub: 'Learn from conversations instantly', icon: 'sparkle', cta: 'Open studio', go: 'extraction' },
           { title: 'Escalations', count: escalatedCount > 0 ? escalatedCount : null, sub: escalatedCount > 0 ? `of ${queries.length} recent queries` : 'No escalations recently', icon: 'arrowup', cta: 'See activity', go: 'activity' },
@@ -427,84 +422,6 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
             </div>
           </div>
         ))}
-
-        {/* MCP Server card */}
-        <div className="card" style={{ cursor: 'pointer' }} onClick={() => goto('mcp')}>
-          <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 8, background: 'var(--accent-soft)', border: '1px solid var(--accent-soft)', display: 'grid', placeItems: 'center', color: 'var(--accent-ink)' }}>
-              <Icon name="mcp" size={17} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>MCP Server</span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 500, color: 'var(--success)', background: 'var(--success-soft)', borderRadius: 4, padding: '1px 6px' }}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--success)', display: 'inline-block' }}></span>Live
-                </span>
-              </div>
-              <div style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>
-                {loading ? '…' : mcpToolCount != null ? `${mcpToolCount} tool${mcpToolCount !== 1 ? 's' : ''} available` : 'Connect AI agents'}
-              </div>
-            </div>
-            <button className="btn ghost sm" style={{ flexShrink: 0 }}>Open <Icon name="arrow" size={12} /></button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── Conflict Warning Modal ───────────────────────────────────────────────────
-const ConflictWarningModal = ({ conflicts, onClose, onViewSkill }) => {
-  const typeLabel = (t) => ({
-    near_duplicate:      '⚠ Near-duplicate',
-    overlapping_trigger: '↔ Overlapping trigger',
-    decision_conflict:   '✕ Decision conflict',
-  }[t] || t);
-  const typeColor = (t) => ({
-    near_duplicate:      'var(--warning)',
-    overlapping_trigger: 'var(--accent)',
-    decision_conflict:   'var(--danger)',
-  }[t] || 'var(--ink-4)');
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
-        <div className="modal-head">
-          <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: 'var(--warning)', fontSize: 18 }}>⚠</span> Skill Conflicts Detected
-          </h3>
-          <button className="btn icon" onClick={onClose}><Icon name="x" size={15} /></button>
-        </div>
-        <div className="modal-body">
-          <p style={{ fontSize: 13, color: 'var(--ink-2)', marginBottom: 16 }}>
-            This skill was approved, but it overlaps with {conflicts.length} existing active skill{conflicts.length !== 1 ? 's' : ''}.
-            Review and resolve to avoid inconsistent AI responses.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {conflicts.map((c, i) => (
-              <div key={i} className="card" style={{ borderColor: typeColor(c.conflict_type) }}>
-                <div className="card-body" style={{ padding: '10px 14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 3 }}>{c.skill_name}</div>
-                      <div style={{ fontSize: 12, color: typeColor(c.conflict_type), fontWeight: 500 }}>
-                        {typeLabel(c.conflict_type)} · {Math.round(c.similarity * 100)}% similar
-                      </div>
-                    </div>
-                    {onViewSkill && (
-                      <button className="btn sm" onClick={() => { onViewSkill(c.skill_id); onClose(); }}>
-                        View <Icon name="arrow" size={11} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="modal-foot">
-          <button className="btn primary" onClick={onClose}>Got it — I'll review</button>
-        </div>
       </div>
     </div>
   );
@@ -512,80 +429,43 @@ const ConflictWarningModal = ({ conflicts, onClose, onViewSkill }) => {
 
 // ─── Skills ───────────────────────────────────────────────────────────────────
 const SkillsPage = ({ openSkill }) => {
-  const [skills, setSkills]         = React.useState([]);
-  const [loading, setLoading]       = React.useState(true);
-  const [err, setErr]               = React.useState(null);
-  const [status, setStatus]         = React.useState('all');
-  const [q, setQ]                   = React.useState('');
-  const [searchInput, setSearchInput] = React.useState('');
-  const [showNew, setShowNew]       = React.useState(false);
-  const [actioning, setActioning]   = React.useState(null);
-  const [conflictData, setConflictData] = React.useState(null);
-  const [selected, setSelected]     = React.useState(new Set());
-  const [batchLoading, setBatchLoading] = React.useState(false);
-  const [batchResult, setBatchResult]   = React.useState(null); // { approved, skipped }
-  const searchRef                   = React.useRef(null);
+  const [skills, setSkills] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [err, setErr] = React.useState(null);
+  const [filter, setFilter] = React.useState('All');
+  const [status, setStatus] = React.useState('all');
+  const [q, setQ] = React.useState('');
+  const [showNew, setShowNew] = React.useState(false);
+  const [actioning, setActioning] = React.useState(null); // skill id being actioned
 
   const load = React.useCallback(async () => {
-    setLoading(true); setErr(null);
+    setLoading(true);
+    setErr(null);
     try {
-      const params = { limit: 100 };
-      if (q.trim()) params.search = q.trim();
-      if (status !== 'all') params.status = status;
-      const data = await window.api.listSkills(params);
+      const data = await window.api.listSkills({ limit: 100 });
       setSkills(data);
-      setSelected(new Set());
     } catch (e) {
       setErr(e.message);
     } finally {
       setLoading(false);
     }
-  }, [q, status]);
+  }, []);
 
   React.useEffect(() => { load(); }, [load]);
 
-  // Debounce search input
-  React.useEffect(() => {
-    if (searchRef.current) clearTimeout(searchRef.current);
-    searchRef.current = setTimeout(() => setQ(searchInput), 350);
-    return () => clearTimeout(searchRef.current);
-  }, [searchInput]);
+  const categories = ['All', ...Array.from(new Set(skills.map(s => s.category).filter(Boolean)))];
 
-  const pendingSkills = skills.filter(s => s.status === 'pending_review');
-  const allPendingSelected = pendingSkills.length > 0 && pendingSkills.every(s => selected.has(s.id));
-
-  const toggleSelect = (id) => setSelected(prev => {
-    const next = new Set(prev);
-    if (next.has(id)) next.delete(id); else next.add(id);
-    return next;
-  });
-
-  const selectAllPending = () => {
-    if (allPendingSelected) setSelected(new Set());
-    else setSelected(new Set(pendingSkills.map(s => s.id)));
-  };
-
-  const batchApprove = async () => {
-    if (selected.size === 0) return;
-    setBatchLoading(true); setErr(null);
-    try {
-      const result = await window.api.batchApproveSkills([...selected]);
-      setBatchResult(result);
-      await load();
-    } catch (e) {
-      setErr(`Batch approve failed: ${e.message}`);
-    } finally {
-      setBatchLoading(false);
-    }
-  };
+  const filtered = skills.filter(s =>
+    (filter === 'All' || s.category === filter) &&
+    (status === 'all' || s.status === status) &&
+    (q === '' || (s.name || '').toLowerCase().includes(q.toLowerCase()) ||
+      (s.trigger_condition || '').toLowerCase().includes(q.toLowerCase()))
+  );
 
   const action = async (id, fn, label) => {
     setActioning(id);
     try {
-      const result = await fn();
-      if (label === 'approve' && result?.conflicts?.length > 0) {
-        setConflictData({ conflicts: result.conflicts });
-      }
+      await fn();
       await load();
     } catch (e) {
       setErr(`Failed to ${label}: ${e.message}`);
@@ -602,57 +482,34 @@ const SkillsPage = ({ openSkill }) => {
           <p className="page-sub">Decision patterns that drive every automated response in your workspace.</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {selected.size > 0 && (
-            <button className="btn primary" disabled={batchLoading} onClick={batchApprove}>
-              <Icon name="check" size={13} />
-              {batchLoading ? 'Approving…' : `Approve ${selected.size} selected`}
-            </button>
-          )}
-          {pendingSkills.length > 0 && selected.size === 0 && (
-            <button className="btn" onClick={selectAllPending}>
-              <Icon name="check2" size={13} /> Select all pending ({pendingSkills.length})
-            </button>
-          )}
           <button className="btn primary" onClick={() => setShowNew(true)}><Icon name="plus" size={13} /> New skill</button>
         </div>
       </div>
 
       {err && <ErrorAlert message={err} onRetry={load} />}
 
-      {batchResult && (
-        <div className="alert" style={{ marginBottom: 16, background: 'var(--success-soft)', borderColor: 'var(--success)', color: 'var(--success)' }}>
-          <Icon name="check2" size={14} />
-          Batch approved {batchResult.approved?.length || 0} skills.
-          {batchResult.skipped?.length > 0 && ` ${batchResult.skipped.length} skipped (already active or disabled).`}
-          <button className="btn sm" style={{ marginLeft: 12 }} onClick={() => setBatchResult(null)}>Dismiss</button>
-        </div>
-      )}
-
-      {conflictData && (
-        <ConflictWarningModal
-          conflicts={conflictData.conflicts}
-          onClose={() => setConflictData(null)}
-          onViewSkill={openSkill}
-        />
-      )}
-
       {showNew && <NewSkillModal onClose={() => setShowNew(false)} onCreated={(sk) => { setSkills(s => [sk, ...s]); }} />}
 
       <div className="card" style={{ overflow: 'hidden' }}>
         <div className="filterbar">
+          {categories.length > 1 && (
+            <div className="chip-group">
+              {categories.map(c => (
+                <button key={c} className={`chip ${filter === c ? 'active' : ''}`} onClick={() => setFilter(c)}>{c}</button>
+              ))}
+            </div>
+          )}
+          <div style={{ width: 1, height: 22, background: 'var(--line)' }}></div>
           <div className="chip-group">
             {[['all','All'],['active','Active'],['pending_review','Pending'],['disabled','Disabled']].map(([k,v]) => (
-              <button key={k} className={`chip ${status === k ? 'active' : ''}`}
-                onClick={() => { setStatus(k); setSelected(new Set()); }}>{v}</button>
+              <button key={k} className={`chip ${status === k ? 'active' : ''}`} onClick={() => setStatus(k)}>{v}</button>
             ))}
           </div>
-          <input className="filter-input" placeholder="Search skills…" value={searchInput}
-            onChange={e => setSearchInput(e.target.value)} />
+          <input className="filter-input" placeholder="Filter by name or trigger…" value={q} onChange={e => setQ(e.target.value)} />
         </div>
         <table className="table">
           <thead>
             <tr>
-              <th style={{ width: 32 }}></th>
               <th style={{ width: '34%' }}>Name</th>
               <th>Status</th>
               <th>Health</th>
@@ -662,17 +519,9 @@ const SkillsPage = ({ openSkill }) => {
             </tr>
           </thead>
           <tbody>
-            {loading && [1,2,3,4,5].map(i => <SkeletonRow key={i} cols={7} />)}
-            {!loading && skills.map(s => (
-              <tr key={s.id} onClick={() => openSkill(s.id)}
-                style={selected.has(s.id) ? { background: 'var(--accent-soft)' } : {}}>
-                <td onClick={e => e.stopPropagation()} style={{ paddingRight: 0 }}>
-                  {s.status === 'pending_review' && (
-                    <input type="checkbox" checked={selected.has(s.id)}
-                      onChange={() => toggleSelect(s.id)}
-                      style={{ width: 14, height: 14, cursor: 'pointer' }} />
-                  )}
-                </td>
+            {loading && [1,2,3,4,5].map(i => <SkeletonRow key={i} cols={6} />)}
+            {!loading && filtered.map(s => (
+              <tr key={s.id} onClick={() => openSkill(s.id)}>
                 <td>
                   <div style={{ fontWeight: 500 }}>{s.name}</div>
                   <div style={{ fontSize: 12, color: 'var(--ink-4)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 360 }}>
@@ -687,7 +536,7 @@ const SkillsPage = ({ openSkill }) => {
                   </div>
                 </td>
                 <td><Confidence value={s.confidence} /></td>
-                <td style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+                <td style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{fmtDate(s.created_at).split(',')[0]}</td>
                 <td onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                   {s.status === 'pending_review' && (
                     <button className="btn sm accent" disabled={actioning === s.id}
@@ -711,15 +560,15 @@ const SkillsPage = ({ openSkill }) => {
                 </td>
               </tr>
             ))}
-            {!loading && skills.length === 0 && (
-              <tr><td colSpan="7" className="empty">
-                {q ? `No skills match "${q}"` : 'No skills yet. Create your first skill.'}
+            {!loading && filtered.length === 0 && (
+              <tr><td colSpan="6" className="empty">
+                {skills.length === 0 ? 'No skills yet. Create your first skill.' : 'No skills match these filters.'}
               </td></tr>
             )}
           </tbody>
         </table>
         <div className="card-foot">
-          <span>{loading ? '…' : `${skills.length} skills${q ? ` matching "${q}"` : ''}`}</span>
+          <span>{loading ? '…' : `${filtered.length} of ${skills.length} skills`}</span>
           <span>Updated {new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
         </div>
       </div>
@@ -737,7 +586,6 @@ const SkillDetail = ({ id, back }) => {
   const [tab, setTab] = React.useState('overview');
   const [actioning, setActioning] = React.useState(false);
   const [showEdit, setShowEdit] = React.useState(false);
-  const [conflictData, setConflictData] = React.useState(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -763,13 +611,8 @@ const SkillDetail = ({ id, back }) => {
   const doAction = async (fn, label) => {
     setActioning(true);
     try {
-      const result = await fn();
-      if (label === 'approve' && result?.conflicts?.length > 0) {
-        setSkill(result.skill);
-        setConflictData({ conflicts: result.conflicts });
-      } else {
-        setSkill(result?.skill ?? result);
-      }
+      const updated = await fn();
+      setSkill(updated);
     } catch (e) {
       setErr(`Failed to ${label}: ${e.message}`);
     } finally {
@@ -846,14 +689,6 @@ const SkillDetail = ({ id, back }) => {
         <EditSkillModal skill={skill} onClose={() => setShowEdit(false)} onUpdated={(updated) => { setSkill(updated); }} />
       )}
 
-      {conflictData && (
-        <ConflictWarningModal
-          conflicts={conflictData.conflicts}
-          onClose={() => setConflictData(null)}
-          onViewSkill={null}
-        />
-      )}
-
       <div className="tabs">
         {[
           ['overview','Overview'],
@@ -926,7 +761,7 @@ const SkillDetail = ({ id, back }) => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div className="card">
-              <div className="card-body grid-2col">
+              <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
                   <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', fontWeight: 500 }}>Versions</div>
                   <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em' }}>{versions.length || '—'}</div>
@@ -1000,4 +835,4 @@ const SkillDetail = ({ id, back }) => {
   );
 };
 
-Object.assign(window, { Dashboard, SkillsPage, SkillDetail, fmt, NewSkillModal, EditSkillModal, ConflictWarningModal });
+Object.assign(window, { Dashboard, SkillsPage, SkillDetail, fmt, NewSkillModal, EditSkillModal });

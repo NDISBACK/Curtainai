@@ -34,7 +34,6 @@ class CurtainAPI {
         ...(options.headers || {}),
       },
     });
-    if (res.status === 204) return null;
     const body = await res.json();
     if (!body.success) {
       const err = new Error(body.error || `HTTP ${res.status}`);
@@ -149,16 +148,10 @@ class CurtainAPI {
   }
 
   // ── Extract ───────────────────────────────────────────────────────────────
-  extractSkills(conversation, options = {}) {
-    const body = { ...options };
-    if (Array.isArray(conversation)) {
-      body.conversations = conversation;
-    } else {
-      body.conversation = conversation;
-    }
+  extractSkills(conversation) {
     return this._fetch('/extract', {
       method: 'POST',
-      body: JSON.stringify(body),
+      body: JSON.stringify({ conversation }),
     });
   }
 
@@ -168,127 +161,6 @@ class CurtainAPI {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-  }
-
-  // ── Integrations ──────────────────────────────────────────────────────────
-  getGmailOAuthUrl() {
-    return this._fetch('/integrations/gmail/oauth/url');
-  }
-
-  listIntegrations() {
-    return this._fetch('/integrations');
-  }
-
-  createIntegration(provider, config) {
-    return this._fetch('/integrations', {
-      method: 'POST',
-      body: JSON.stringify({ provider, config }),
-    });
-  }
-
-  deleteIntegration(id) {
-    return this._fetch(`/integrations/${id}`, { method: 'DELETE' });
-  }
-
-  syncIntegration(id, limit = 200) {
-    const qs = limit !== 200 ? `?limit=${limit}` : '';
-    return this._fetch(`/integrations/${id}/sync${qs}`, { method: 'POST' });
-  }
-
-  getSyncStatus(id, jobId) {
-    return this._fetch(`/integrations/${id}/sync/status?job_id=${encodeURIComponent(jobId)}`);
-  }
-
-  confirmSync(id, skills) {
-    return this._fetch(`/integrations/${id}/sync/confirm`, {
-      method: 'POST',
-      body: JSON.stringify({ skills }),
-    });
-  }
-
-  cancelSync(id, jobId) {
-    return this._fetch(`/integrations/${id}/sync/cancel`, {
-      method: 'POST',
-      body: JSON.stringify({ job_id: jobId }),
-    });
-  }
-
-  // ── Gap Analysis ──────────────────────────────────────────────────────────
-  getGapAnalysis(limit = 200) {
-    return this._fetch(`/analytics/gaps?limit=${limit}`);
-  }
-
-  // ── Escalations ───────────────────────────────────────────────────────────
-  listEscalations(params = {}) {
-    const qs = new URLSearchParams(
-      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
-    ).toString();
-    return this._fetch(`/escalations${qs ? '?' + qs : ''}`);
-  }
-
-  resolveEscalation(id, note) {
-    return this._fetch(`/escalations/${id}/resolve`, {
-      method: 'PATCH',
-      body: JSON.stringify({ note }),
-    });
-  }
-
-  // ── Batch operations ──────────────────────────────────────────────────────
-  batchApproveSkills(ids) {
-    return this._fetch('/skills/batch-approve', {
-      method: 'POST',
-      body: JSON.stringify({ ids }),
-    });
-  }
-
-  // ── Audit log ─────────────────────────────────────────────────────────────
-  listAuditLogs(params = {}) {
-    const qs = new URLSearchParams(
-      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
-    ).toString();
-    return this._fetch(`/audit${qs ? '?' + qs : ''}`);
-  }
-
-  // ── Team members ──────────────────────────────────────────────────────────
-  listTeam() {
-    return this._fetch('/team');
-  }
-
-  addTeamMember(email, role, name) {
-    return this._fetch('/team', {
-      method: 'POST',
-      body: JSON.stringify({ email, role, name }),
-    });
-  }
-
-  updateTeamMember(id, patch) {
-    return this._fetch(`/team/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(patch),
-    });
-  }
-
-  removeTeamMember(id) {
-    return this._fetch(`/team/${id}`, { method: 'DELETE' });
-  }
-
-  // ── MCP ───────────────────────────────────────────────────────────────────
-  async mcpCall(method, params = null) {
-    const payload = { jsonrpc: '2.0', id: Date.now(), method };
-    if (params) payload.params = params;
-    const res = await fetch('/mcp/v1', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this._key}`,
-      },
-      body: JSON.stringify(payload),
-    });
-    return res.json();
-  }
-
-  exportSkills(format = 'mcp_tools', status = 'active') {
-    return this._fetch(`/skills/export?format=${format}&status=${status}`);
   }
 }
 

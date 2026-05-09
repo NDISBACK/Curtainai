@@ -10,21 +10,6 @@ function requiredWaitlistEnv(key: string): string {
   return value;
 }
 
-function optionalWaitlistEnv(key: string): string {
-  return process.env[key]?.trim() ?? '';
-}
-
-function hasSmtpConfig(): boolean {
-  return Boolean(
-    optionalWaitlistEnv('WAITLIST_SMTP_HOST')
-    && optionalWaitlistEnv('WAITLIST_SMTP_PORT')
-    && optionalWaitlistEnv('WAITLIST_SMTP_USER')
-    && optionalWaitlistEnv('WAITLIST_SMTP_PASS')
-    && optionalWaitlistEnv('WAITLIST_FROM_EMAIL')
-    && optionalWaitlistEnv('WAITLIST_TO_EMAIL')
-  );
-}
-
 function buildTransport() {
   const host = requiredWaitlistEnv('WAITLIST_SMTP_HOST');
   const port = Number(requiredWaitlistEnv('WAITLIST_SMTP_PORT'));
@@ -43,7 +28,7 @@ function line(label: string, value?: string): string {
   return `${label}: ${value?.trim() ? value.trim() : '—'}`;
 }
 
-async function sendViaSmtp(input: CreateWaitlistSignupInput): Promise<void> {
+export async function sendWaitlistSignupEmail(input: CreateWaitlistSignupInput): Promise<void> {
   const transporter = buildTransport();
   const from = requiredWaitlistEnv('WAITLIST_FROM_EMAIL');
   const to = requiredWaitlistEnv('WAITLIST_TO_EMAIL');
@@ -88,57 +73,5 @@ async function sendViaSmtp(input: CreateWaitlistSignupInput): Promise<void> {
       );
     }
     throw err;
-  }
-}
-
-async function sendViaFormspree(input: CreateWaitlistSignupInput): Promise<void> {
-  const endpoint = optionalWaitlistEnv('WAITLIST_FORMSPREE_ENDPOINT');
-  if (!endpoint) return;
-
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      email: input.email,
-      name: input.name ?? '',
-      company: input.company ?? '',
-      role: input.role ?? '',
-      size: input.size ?? '',
-      source: 'Curtain Early Access Form',
-      submitted_at: new Date().toISOString(),
-      _subject: `New Early Access signup: ${input.email}`,
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new AppError(
-      `Formspree submission failed (${res.status}): ${body || 'empty response'}`,
-      502
-    );
-  }
-}
-
-export async function sendWaitlistSignupEmail(input: CreateWaitlistSignupInput): Promise<void> {
-  const formspreeEndpoint = optionalWaitlistEnv('WAITLIST_FORMSPREE_ENDPOINT');
-  const smtpEnabled = hasSmtpConfig();
-  const formspreeEnabled = Boolean(formspreeEndpoint);
-
-  if (!smtpEnabled && !formspreeEnabled) {
-    throw new AppError(
-      'Waitlist notifications are not configured. Set SMTP vars and/or WAITLIST_FORMSPREE_ENDPOINT.',
-      503
-    );
-  }
-
-  if (smtpEnabled) {
-    await sendViaSmtp(input);
-  }
-
-  if (formspreeEnabled) {
-    await sendViaFormspree(input);
   }
 }

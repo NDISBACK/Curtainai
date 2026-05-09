@@ -23,12 +23,4 @@ export const env = {
     apiKey: required('OPENAI_API_KEY'),
     model: process.env.OPENAI_MODEL ?? 'gpt-4o',
   },
-
-  google: {
-    clientId:     process.env.GOOGLE_CLIENT_ID ?? '',
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    redirectUri:  process.env.GOOGLE_REDIRECT_URI ?? '',
-  },
-
-  frontendUrl: process.env.FRONTEND_URL ?? '',
 };

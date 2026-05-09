@@ -3,44 +3,15 @@
 // ─── Extraction Studio ────────────────────────────────────────────────────────
 
 const ExtractionStudio = ({ goto }) => {
-  const [text, setText]           = React.useState('');
-  const [state, setState]         = React.useState('idle'); // idle | extracting | done
+  const [text, setText] = React.useState('');
+  const [state, setState] = React.useState('idle'); // idle | extracting | done
   const [extracted, setExtracted] = React.useState([]);
-  const [selected, setSelected]   = React.useState(new Set());
-  const [editing, setEditing]     = React.useState({});
+  const [selected, setSelected] = React.useState(new Set());
+  const [editing, setEditing] = React.useState({});
   const [importing, setImporting] = React.useState(false);
   const [importResult, setImportResult] = React.useState(null);
-  const [err, setErr]             = React.useState(null);
-  const [dragging, setDragging]   = React.useState(false);
-  const [deepMode, setDeepMode]   = React.useState(false);
-  const [multiMode, setMultiMode] = React.useState(false);
-  const [phase, setPhase]         = React.useState('');
-  const [meta, setMeta]           = React.useState(null);
-  const phaseTimerRef             = React.useRef(null);
-
-  const DEEP_PHASES = [
-    { label: 'Pass 1 — Broad scan, extracting all patterns…', duration: 5000 },
-    { label: 'Pass 2 — Deep analysis, finding what was missed…', duration: 6000 },
-    { label: 'Pass 3 — Merging, deduplicating, normalizing…', duration: 5000 },
-  ];
-
-  const startPhaseTimer = () => {
-    let idx = 0;
-    setPhase(DEEP_PHASES[0].label);
-    const tick = () => {
-      idx++;
-      if (idx < DEEP_PHASES.length) {
-        setPhase(DEEP_PHASES[idx].label);
-        phaseTimerRef.current = setTimeout(tick, DEEP_PHASES[idx].duration);
-      }
-    };
-    phaseTimerRef.current = setTimeout(tick, DEEP_PHASES[0].duration);
-  };
-
-  const stopPhaseTimer = () => {
-    if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
-    setPhase('');
-  };
+  const [err, setErr] = React.useState(null);
+  const [dragging, setDragging] = React.useState(false);
 
   const extract = async () => {
     if (!text.trim()) return;
@@ -49,35 +20,17 @@ const ExtractionStudio = ({ goto }) => {
     setSelected(new Set());
     setEditing({});
     setImportResult(null);
-    setMeta(null);
     setErr(null);
-
-    if (deepMode) startPhaseTimer();
-
     try {
-      // Multi-mode: split on \n---\n and pass as conversations[]
-      const conversations = multiMode
-        ? text.split(/\n---+\n/).map(s => s.trim()).filter(s => s.length > 10)
-        : null;
-      const input = conversations || text.trim();
-
-      const res = await window.api.extractSkills(input, {
-        deep: deepMode,
-        workspace_id: window.api._wsId || undefined,
-      });
-
-      stopPhaseTimer();
-      if (res.meta) setMeta(res.meta);
-
+      const res = await window.api.extractSkills(text.trim());
       const skills = (res.skills || []).map((sk, i) => ({ ...sk, _id: `ex-${Date.now()}-${i}` }));
       for (let i = 0; i < skills.length; i++) {
-        await new Promise(r => setTimeout(r, 120));
+        await new Promise(r => setTimeout(r, 220));
         setExtracted(prev => [...prev, skills[i]]);
         setSelected(prev => new Set([...prev, skills[i]._id]));
       }
       setState('done');
     } catch (e) {
-      stopPhaseTimer();
       setErr(e.message);
       setState('idle');
     }
@@ -143,7 +96,7 @@ const ExtractionStudio = ({ goto }) => {
       <div className="page-head">
         <div>
           <h1 className="page-title">Extraction Studio</h1>
-          <p className="page-sub">Paste a support conversation — Curtain extracts every reusable skill, including implicit patterns. Enable Deep Scan for exhaustive multi-pass extraction.</p>
+          <p className="page-sub">Paste a support conversation — Curtain extracts reusable skills in seconds. Edit inline, then import what you want.</p>
         </div>
         {state === 'done' && (
           <button className="btn" onClick={() => { setState('idle'); setExtracted([]); setText(''); setImportResult(null); }}>
@@ -170,81 +123,45 @@ const ExtractionStudio = ({ goto }) => {
       )}
 
       {(state === 'idle' || state === 'extracting') && (
-        <>
-          {/* Mode toggle row */}
-          <div style={{ display: 'flex', gap: 18, marginBottom: 10, alignItems: 'center' }}>
-            <div className="chip-group">
-              <button className={`chip ${!multiMode ? 'active' : ''}`} onClick={() => setMultiMode(false)}>Single conversation</button>
-              <button className={`chip ${multiMode ? 'active' : ''}`} onClick={() => setMultiMode(true)}>
-                Multiple conversations <span style={{ fontSize: 10, color: 'var(--ink-4)', marginLeft: 3 }}>(separate with ---)</span>
-              </button>
-            </div>
+        <div className="console" style={{ marginBottom: 18 }}
+          onDrop={handleDrop}
+          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}>
+          <div className="console-head">
+            <div className="lights"><span/><span/><span/></div>
+            <span style={{ marginLeft: 8 }}>curtain · extraction studio</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11 }}>POST /api/v1/extract</span>
           </div>
-
-          <div className="console" style={{ marginBottom: 18 }}
-            onDrop={handleDrop}
-            onDragOver={e => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={() => setDragging(false)}>
-            <div className="console-head">
-              <div className="lights"><span/><span/><span/></div>
-              <span style={{ marginLeft: 8 }}>curtain · extraction studio</span>
-              <span style={{ marginLeft: 'auto', fontSize: 11 }}>POST /api/v1/extract{deepMode ? '?deep=true' : ''}</span>
-            </div>
-            <div className="console-body" style={{ display: 'flex', alignItems: 'flex-start' }}>
-              <span className="console-prompt">›</span>
-              <textarea
-                value={text}
-                onChange={e => setText(e.target.value)}
-                placeholder={dragging
-                  ? 'Drop your .txt or .md file here…'
-                  : multiMode
-                    ? 'Paste multiple conversations separated by ---\n\nAgent: Thanks for reaching out!\nCustomer: I was double charged.\nAgent: I can see the duplicate — issuing a refund now.\n\n---\n\nAgent: Hi! How can I help?\nCustomer: I need to cancel my account.\nAgent: I can help with that…'
-                    : 'Paste a customer support conversation here…\n\nAgent: Thanks for reaching out!\nCustomer: I was charged twice for my subscription.\nAgent: I can see the duplicate — issuing a refund now.'}
-                rows={10}
-                disabled={state === 'extracting'}
-                style={{ opacity: dragging ? 0.5 : 1 }}
-              />
-            </div>
-            <div className="console-foot">
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                <div style={{ fontSize: 12, color: 'var(--ink-4)' }}>
-                  {text.length > 0 ? `${text.length.toLocaleString()} chars` : 'Drop a .txt or .md file · Zendesk, Intercom, Freshdesk exports work great'}
-                </div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12,
-                  color: deepMode ? 'var(--accent)' : 'var(--ink-3)', cursor: 'pointer', userSelect: 'none' }}>
-                  <input type="checkbox" checked={deepMode} onChange={e => setDeepMode(e.target.checked)}
-                    disabled={state === 'extracting'} style={{ width: 'auto' }} />
-                  <strong>Deep scan</strong>
-                  <span style={{ color: 'var(--ink-4)', fontWeight: 400 }}>(~15s · 3 passes)</span>
-                </label>
-              </div>
-              <button className="btn accent sm" onClick={extract} disabled={!canExtract || state === 'extracting'}>
-                {state === 'extracting'
-                  ? <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>↻</span> Extracting…</>
-                  : <>{deepMode ? '🔬' : ''} Extract skills <Icon name="sparkle" size={12} /></>}
-              </button>
-            </div>
+          <div className="console-body" style={{ display: 'flex', alignItems: 'flex-start' }}>
+            <span className="console-prompt">›</span>
+            <textarea
+              value={text}
+              onChange={e => setText(e.target.value)}
+              placeholder={dragging
+                ? 'Drop your .txt or .md file here…'
+                : 'Paste a customer support conversation here…\n\nAgent: Thanks for reaching out!\nCustomer: I was charged twice for my subscription.\nAgent: I can see the duplicate — issuing a refund now.'}
+              rows={10}
+              disabled={state === 'extracting'}
+              style={{ opacity: dragging ? 0.5 : 1 }}
+            />
           </div>
-        </>
+          <div className="console-foot">
+            <div style={{ fontSize: 12, color: 'var(--ink-4)' }}>
+              {text.length > 0 ? `${text.length.toLocaleString()} chars` : 'Drop a .txt or .md file · Zendesk, Intercom, Freshdesk exports work great'}
+            </div>
+            <button className="btn accent sm" onClick={extract} disabled={!canExtract || state === 'extracting'}>
+              {state === 'extracting'
+                ? <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>↻</span> Extracting…</>
+                : <>Extract skills <Icon name="sparkle" size={12} /></>}
+            </button>
+          </div>
+        </div>
       )}
 
       {state === 'extracting' && extracted.length === 0 && (
         <div className="card">
           <div className="card-body" style={{ padding: 32, textAlign: 'center' }}>
-            <div style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 6 }}>
-              {deepMode && phase ? phase : 'Analyzing conversation patterns…'}
-            </div>
-            {deepMode && (
-              <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 10 }}>
-                {DEEP_PHASES.map((p, i) => (
-                  <div key={i} style={{
-                    height: 3, borderRadius: 2, flex: 1, maxWidth: 80,
-                    background: phase === p.label ? 'var(--accent)' : 'var(--line)',
-                    transition: 'background 300ms',
-                  }} />
-                ))}
-              </div>
-            )}
+            <div style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 12 }}>Analyzing conversation patterns…</div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
               {[0,1,2].map(i => (
                 <div key={i} style={{ width: 8, height: 8, borderRadius: 4, background: 'var(--accent)',
@@ -257,40 +174,11 @@ const ExtractionStudio = ({ goto }) => {
 
       {extracted.length > 0 && (
         <>
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-              <strong style={{ fontSize: 14 }}>{extracted.length} skill{extracted.length !== 1 ? 's' : ''} found</strong>
-              <span style={{ color: 'var(--ink-4)', fontSize: 14 }}>· {selectedCount} selected</span>
-              {meta?.passes_run > 1 && (
-                <span className="badge" style={{ background: 'oklch(from var(--accent) l c h / 0.12)', color: 'var(--accent)', fontSize: 11 }}>
-                  {meta.passes_run}-pass extraction
-                </span>
-              )}
-              {meta?.quality_warning && (
-                <span className="badge" style={{ background: 'oklch(from var(--warning) l c h / 0.12)', color: 'var(--warning)', fontSize: 11 }}>
-                  ⚠ {meta.quality_warning}
-                </span>
-              )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            <div style={{ flex: 1, fontSize: 14, color: 'var(--ink-2)' }}>
+              <strong>{extracted.length} skill{extracted.length !== 1 ? 's' : ''} found</strong>
+              <span style={{ color: 'var(--ink-4)', marginLeft: 8 }}>· {selectedCount} selected for import</span>
             </div>
-            {(meta?.categories_detected || []).length > 0 && (
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
-                <span style={{ fontSize: 11, color: 'var(--ink-4)', alignSelf: 'center' }}>Topics:</span>
-                {meta.categories_detected.map(cat => (
-                  <span key={cat} className="badge mono" style={{ fontSize: 11, textTransform: 'capitalize' }}>{cat}</span>
-                ))}
-              </div>
-            )}
-            {meta?.passes_run > 1 && (
-              <div style={{ fontSize: 12, color: 'var(--ink-4)' }}>
-                Pass 1: <strong style={{ color: 'var(--ink-2)' }}>{meta.pass1_count}</strong>
-                {' · '}Pass 2 new: <strong style={{ color: 'var(--ink-2)' }}>{meta.pass2_count}</strong>
-                {' · '}After merge: <strong style={{ color: 'var(--accent)' }}>{meta.merged_count}</strong>
-                {meta.segments_detected > 1 && <> · <strong>{meta.segments_detected} topics detected</strong></>}
-              </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <div style={{ flex: 1 }}></div>
             <button className="btn sm" onClick={() => setSelected(new Set(extracted.map(s => s._id)))}>Select all</button>
             <button className="btn sm" onClick={() => setSelected(new Set())}>None</button>
             <button className="btn primary"
@@ -327,19 +215,13 @@ const ExtractionStudio = ({ goto }) => {
                       />
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                      {sk.existing_skill_match && (
-                        <span className="badge" title={`Similar to "${sk.existing_skill_match.name}" (${Math.round(sk.existing_skill_match.similarity * 100)}% match)`}
-                          style={{ background: 'oklch(from var(--warning) l c h / 0.12)', color: 'var(--warning)', fontSize: 10, cursor: 'help' }}>
-                          ⚠ Similar exists
-                        </span>
-                      )}
                       {sk.escalation_required && (
                         <span className="badge escalate"><span className="dot"></span>Escalates</span>
                       )}
                       <Ring value={conf} size={40} />
                     </div>
                   </div>
-                  <div className="card-body grid-2col">
+                  <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                     <div className="field" style={{ margin: 0 }}>
                       <label style={{ fontSize: 11 }}>Trigger condition</label>
                       <textarea
@@ -386,219 +268,13 @@ const ExtractionStudio = ({ goto }) => {
   );
 };
 
-// ─── Gaps Tab ────────────────────────────────────────────────────────────────
-
-const GapsTab = ({ goto }) => {
-  const [report, setReport]         = React.useState(null);
-  const [loading, setLoading]       = React.useState(true);
-  const [err, setErr]               = React.useState(null);
-  const [dismissed, setDismissed]   = React.useState(() => {
-    try { return JSON.parse(localStorage.getItem('curtain_dismissed_gaps') || '[]'); }
-    catch { return []; }
-  });
-  const [creating, setCreating]     = React.useState(null); // cluster being turned into a skill
-  const [saving, setSaving]         = React.useState(false);
-  const [saveOk, setSaveOk]         = React.useState(null);
-  const [saveErr, setSaveErr]       = React.useState(null);
-  const [editSkill, setEditSkill]   = React.useState({});
-
-  React.useEffect(() => {
-    (async () => {
-      setLoading(true); setErr(null);
-      try { setReport(await window.api.getGapAnalysis(200)); }
-      catch (e) { setErr(e.message); }
-      finally { setLoading(false); }
-    })();
-  }, []);
-
-  const dismiss = (id) => {
-    const next = [...dismissed, id];
-    setDismissed(next);
-    localStorage.setItem('curtain_dismissed_gaps', JSON.stringify(next));
-  };
-
-  const openCreate = (cluster) => {
-    setEditSkill({ ...cluster.suggested_skill });
-    setCreating(cluster);
-    setSaveOk(null); setSaveErr(null);
-  };
-
-  const saveSkill = async () => {
-    if (!creating) return;
-    setSaving(true); setSaveErr(null);
-    try {
-      await window.api.createSkill({
-        name:               editSkill.name,
-        trigger_condition:  editSkill.trigger_condition,
-        decision:           editSkill.decision,
-        conditions:         null,
-        escalation_required: editSkill.escalation_required ?? false,
-        confidence:         editSkill.confidence ?? null,
-      });
-      setSaveOk(true);
-      dismiss(creating.id);
-      setTimeout(() => { setCreating(null); setSaveOk(null); }, 1200);
-    } catch (e) {
-      setSaveErr(e.message);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const visible = (report?.clusters || []).filter(c => !dismissed.includes(c.id));
-
-  if (loading) return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
-      {[1,2,3].map(i => <div key={i} className="skel" style={{ height: 140, borderRadius: 10 }}></div>)}
-    </div>
-  );
-
-  if (err) return <ErrorAlert message={err} onRetry={() => window.location.reload()} />;
-
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13, color: 'var(--ink-2)' }}>
-            Analyzed <strong>{report?.total_escalations_analyzed ?? 0}</strong> escalations
-            {report?.ungrouped_count > 0 && (
-              <span style={{ color: 'var(--ink-4)' }}> · {report.ungrouped_count} ungrouped outliers hidden</span>
-            )}
-          </div>
-        </div>
-        {dismissed.length > 0 && (
-          <button className="btn sm" onClick={() => {
-            setDismissed([]);
-            localStorage.removeItem('curtain_dismissed_gaps');
-          }}>Show dismissed ({dismissed.length})</button>
-        )}
-      </div>
-
-      {visible.length === 0 ? (
-        <div className="card">
-          <div className="card-body" style={{ padding: 48, textAlign: 'center' }}>
-            <div style={{ color: 'var(--ink-5)', marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
-              <Icon name="chart" size={26} stroke={1.25} />
-            </div>
-            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: 'var(--ink)' }}>
-              No gaps detected
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--ink-3)' }}>
-              Your AI is handling everything — or not enough queries have been escalated yet.
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {visible.map((cluster, idx) => (
-            <div key={cluster.id} className="card" style={{ animation: `fadeInUp 240ms ${idx * 50}ms both` }}>
-              <div className="card-head">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{
-                    background: 'var(--danger)', color: '#fff', borderRadius: 6,
-                    fontSize: 11, fontWeight: 700, padding: '2px 8px', letterSpacing: '0.03em',
-                  }}>{cluster.size} queries</span>
-                  <span style={{ fontWeight: 600, fontSize: 14 }}>{cluster.suggested_skill.name}</span>
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button className="btn sm" onClick={() => dismiss(cluster.id)}
-                    style={{ color: 'var(--ink-4)' }}>Dismiss</button>
-                  <button className="btn primary sm" onClick={() => openCreate(cluster)}>
-                    <Icon name="plus" size={12} /> Create skill
-                  </button>
-                </div>
-              </div>
-              <div className="card-body" style={{ paddingTop: 4 }}>
-                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', fontWeight: 500, marginBottom: 8 }}>
-                  Representative queries
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
-                  {cluster.representative_queries.map((q, qi) => (
-                    <div key={qi} style={{
-                      background: 'var(--surface-2)', borderRadius: 6, padding: '7px 11px',
-                      fontSize: 13, color: 'var(--ink-2)', fontStyle: 'italic',
-                    }}>"{q}"</div>
-                  ))}
-                </div>
-                <div className="grid-2col-sm">
-                  <div>
-                    <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', fontWeight: 500, marginBottom: 4 }}>Suggested trigger</div>
-                    <div style={{ fontSize: 13, color: 'var(--ink-2)' }}>{cluster.suggested_skill.trigger_condition}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', fontWeight: 500, marginBottom: 4 }}>Suggested decision</div>
-                    <div style={{ fontSize: 13, color: 'var(--ink-2)' }}>{cluster.suggested_skill.decision}</div>
-                  </div>
-                </div>
-                <div style={{ marginTop: 10, fontSize: 11, color: 'var(--ink-4)' }}>
-                  Last seen: {new Date(cluster.last_seen).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Create Skill Modal */}
-      {creating && (
-        <div className="modal-overlay" onClick={() => setCreating(null)}>
-          <div className="modal" style={{ maxWidth: 540 }} onClick={e => e.stopPropagation()}>
-            <div className="modal-head">
-              <h3>Create skill from gap</h3>
-              <button className="btn icon" onClick={() => setCreating(null)}><Icon name="x" size={15} /></button>
-            </div>
-            <div className="modal-body">
-              {saveOk ? (
-                <div className="alert success" style={{ margin: 0 }}>
-                  <Icon name="check2" size={14} /> Skill added to Pending Review
-                </div>
-              ) : (
-                <>
-                  {saveErr && <ErrorAlert message={saveErr} onRetry={() => setSaveErr(null)} />}
-                  <div className="field">
-                    <label>Name</label>
-                    <input value={editSkill.name || ''} onChange={e => setEditSkill(s => ({ ...s, name: e.target.value }))} />
-                  </div>
-                  <div className="field">
-                    <label>Trigger condition</label>
-                    <textarea rows={3} value={editSkill.trigger_condition || ''} onChange={e => setEditSkill(s => ({ ...s, trigger_condition: e.target.value }))} />
-                  </div>
-                  <div className="field">
-                    <label>Decision</label>
-                    <textarea rows={3} value={editSkill.decision || ''} onChange={e => setEditSkill(s => ({ ...s, decision: e.target.value }))} />
-                  </div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
-                    <input type="checkbox" checked={!!editSkill.escalation_required}
-                      onChange={e => setEditSkill(s => ({ ...s, escalation_required: e.target.checked }))}
-                      style={{ width: 'auto' }} />
-                    Requires escalation
-                  </label>
-                </>
-              )}
-            </div>
-            {!saveOk && (
-              <div className="modal-foot">
-                <button className="btn" onClick={() => setCreating(null)}>Cancel</button>
-                <button className="btn primary" onClick={saveSkill} disabled={saving}>
-                  {saving ? 'Saving…' : 'Add to Pending Review'}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 // ─── Analytics Page ───────────────────────────────────────────────────────────
 
 const AnalyticsPage = ({ goto }) => {
-  const [tab, setTab]               = React.useState('overview');
-  const [analytics, setAnalytics]   = React.useState(null);
-  const [loading, setLoading]       = React.useState(true);
-  const [err, setErr]               = React.useState(null);
-  const [range, setRange]           = React.useState(30);
+  const [analytics, setAnalytics] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [err, setErr] = React.useState(null);
+  const [range, setRange] = React.useState(30);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -695,33 +371,14 @@ const AnalyticsPage = ({ goto }) => {
           <p className="page-sub">Your AI's performance over time — match rates, confidence trends, and top-performing skills.</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {tab === 'overview' && (
-            <>
-              <div className="chip-group">
-                {[[7,'7d'],[30,'30d'],[90,'90d']].map(([d,l]) => (
-                  <button key={d} className={`chip ${range === d ? 'active' : ''}`} onClick={() => setRange(d)}>{l}</button>
-                ))}
-              </div>
-              <button className="btn" onClick={load}><Icon name="refresh" size={13} /></button>
-            </>
-          )}
+          <div className="chip-group">
+            {[[7,'7d'],[30,'30d'],[90,'90d']].map(([d,l]) => (
+              <button key={d} className={`chip ${range === d ? 'active' : ''}`} onClick={() => setRange(d)}>{l}</button>
+            ))}
+          </div>
+          <button className="btn" onClick={load}><Icon name="refresh" size={13} /></button>
         </div>
       </div>
-
-      <div className="chip-group" style={{ marginBottom: 20 }}>
-        <button className={`chip ${tab === 'overview' ? 'active' : ''}`} onClick={() => setTab('overview')}>Overview</button>
-        <button className={`chip ${tab === 'gaps' ? 'active' : ''}`} onClick={() => setTab('gaps')}>
-          Skills Gap Radar
-          <span style={{
-            marginLeft: 6, background: 'var(--danger)', color: '#fff',
-            borderRadius: 10, fontSize: 10, fontWeight: 700, padding: '1px 5px',
-          }}>new</span>
-        </button>
-      </div>
-
-      {tab === 'gaps' && <GapsTab goto={goto} />}
-
-      {tab === 'overview' && <>
 
       {err && <ErrorAlert message={err} onRetry={load} />}
 
@@ -759,7 +416,7 @@ const AnalyticsPage = ({ goto }) => {
         ))}
       </div>
 
-      <div className="grid-main-wide" style={{ marginBottom: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.65fr) minmax(0,1fr)', gap: 18, marginBottom: 18 }}>
         <div className="card">
           <div className="card-head">
             <div>
@@ -835,10 +492,8 @@ const AnalyticsPage = ({ goto }) => {
           </div>
         </div>
       )}
-
-      </>}
     </div>
   );
 };
 
-Object.assign(window, { ExtractionStudio, AnalyticsPage, GapsTab });
+Object.assign(window, { ExtractionStudio, AnalyticsPage });

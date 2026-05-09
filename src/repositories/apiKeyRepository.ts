@@ -18,7 +18,7 @@ export class ApiKeyRepository extends BaseRepository {
 
   async findAllByWorkspace(workspaceId: string): Promise<ApiKeyRow[]> {
     const { data, error } = await this.from()
-      .select('id, workspace_id, key_prefix, name, scope, last_used_at, expires_at, created_at, revoked_at')
+      .select('id, workspace_id, key_prefix, name, last_used_at, expires_at, created_at, revoked_at')
       .eq('workspace_id', workspaceId)
       .order('created_at', { ascending: false });
 

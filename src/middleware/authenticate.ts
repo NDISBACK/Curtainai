@@ -28,7 +28,6 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
   const workspace = await workspaceRepository.findById(apiKey.workspace_id);
   req.workspace = workspace;
   req.apiKeyId = apiKey.id;
-  req.apiKeyScope = apiKey.scope ?? 'full';
 
   // Fire-and-forget — do not delay the request
   apiKeyRepository.touchLastUsed(apiKey.id).catch(() => {});

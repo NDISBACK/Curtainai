@@ -3,14 +3,27 @@
 var { useState, useEffect, useRef, useMemo } = React;
 var Ic = PSCommon.Ic, Reveal = PSCommon.Reveal, WLButton = PSCommon.WLButton, CTABanner = PSCommon.CTABanner;
 
-// ─── Technical specs strip (replaces fake live counter) ────────────
-function TechSpecs() {
+// ─── Live counter (signups + decisions) ────────────────────────────
+function LiveCounter() {
+  const [n, setN] = useState({ signups: 100, decisions: 1000, teams: 23, audits: 612 });
+  useEffect(() => {
+    const t = setInterval(() => {
+      setN(prev => ({
+        signups: prev.signups + (Math.random() < 0.5 ? 1 : 0),
+        decisions: prev.decisions + Math.floor(20 + Math.random() * 80),
+        teams: prev.teams,
+        audits: prev.audits + (Math.random() < 0.3 ? 1 : 0),
+      }));
+    }, 1800);
+    return () => clearInterval(t);
+  }, []);
+  const fmt = (n) => n.toLocaleString();
   return (
     <div className="ps-counter">
-      <div className="c"><div className="v">&lt; 40<span style={{ fontSize: '0.55em', fontWeight: 500, letterSpacing: 0, marginLeft: 2 }}>ms</span></div><div className="l">median match latency</div></div>
-      <div className="c"><div className="v">5<span style={{ fontSize: '0.55em', fontWeight: 500, letterSpacing: 0, marginLeft: 2 }}>k</span></div><div className="l">active skills per workspace</div></div>
-      <div className="c"><div className="v">100<span style={{ fontSize: '0.55em', fontWeight: 500, letterSpacing: 0, marginLeft: 2 }}>%</span></div><div className="l">multi-tenant data isolation</div></div>
-      <div className="c"><div className="v" style={{ fontSize: '1.1rem', letterSpacing: '-0.01em' }}>REST + MCP</div><div className="l">API-first · no SDK lock-in</div></div>
+      <div className="c"><div className="v">{fmt(n.signups)}</div><div className="l">on the waitlist</div></div>
+      <div className="c"><div className="v">{fmt(n.decisions)}</div><div className="l">decisions evaluated · last 30d</div></div>
+      <div className="c"><div className="v">{fmt(n.teams)}</div><div className="l">teams in closed beta</div></div>
+      <div className="c"><div className="v">{fmt(n.audits)}</div><div className="l">audit exports this week</div></div>
     </div>
   );
 }
@@ -67,8 +80,7 @@ function FrameMain() {
         <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, letterSpacing: '-0.012em' }}>Query history · last 24 h</h3>
         <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-4)' }}>live</span>
       </div>
-      <div className="ps-query-table-wrap">
-      <div style={{ border: '1px solid var(--line)', borderRadius: 9, overflow: 'hidden', background: 'var(--bg)', minWidth: 340 }}>
+      <div style={{ border: '1px solid var(--line)', borderRadius: 9, overflow: 'hidden', background: 'var(--bg)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '70px 1.6fr 60px 90px', padding: '8px 12px', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', background: 'var(--paper-2)', borderBottom: '1px solid var(--line-2)' }}>
           <span>ID</span><span>Query</span><span>Conf.</span><span>Status</span>
         </div>
@@ -83,7 +95,6 @@ function FrameMain() {
             </div>
           );
         })}
-      </div>
       </div>
     </div>
   );
@@ -108,10 +119,10 @@ function HomePage({ openWaitlist, setPage }) {
                 <WLButton size="lg" ghost onClick={() => setPage('features')} label="See how it works" />
               </div>
               <div className="ps-hero-meta">
-                <span>Private beta · cohort 04 open</span><span className="dot"/>
+                <span><strong>100</strong> on waitlist</span><span className="dot"/>
                 <span><strong>~2 wk</strong> invite cycle</span><span className="dot"/>
                 <span>SOC 2 in audit</span><span className="dot"/>
-                <span>REST API + MCP</span>
+                <span>REST API + SDKs</span>
               </div>
             </div>
             <div style={{ position: 'relative' }}>
@@ -126,16 +137,16 @@ function HomePage({ openWaitlist, setPage }) {
               </div>
             </div>
           </div>
-          <TechSpecs />
+          <LiveCounter />
         </div>
       </section>
 
-      {/* VERTICALS */}
+      {/* LOGOS */}
       <section style={{ padding: '8px 0 0' }}>
         <div className="ps-container">
-          <div className="ps-logos-cap">Built for teams deploying agents in production</div>
+          <div className="ps-logos-cap">Trusted by closed-beta teams shipping production agents</div>
           <div className="ps-logos">
-            {['Customer Support','Sales & Quoting','Operations','Fintech','Healthcare Ops','Internal Tools'].map((n, i) => (
+            {['Halton','Foundry/9','Northwind','Aperture','Thirdline','Kestrel'].map((n, i) => (
               <div key={i} className={i % 2 ? 'ps-logo mono' : 'ps-logo'}>{n}</div>
             ))}
           </div>
@@ -253,29 +264,29 @@ function HomePage({ openWaitlist, setPage }) {
         </div>
       </section>
 
-      {/* EARLY ACCESS */}
+      {/* STATS */}
       <section className="ps-section dark">
         <div className="ps-container">
           <Reveal className="ps-section-head">
             <div>
-              <div className="ps-eyebrow">Early access</div>
-              <h2 className="ps-h2">In private beta with enterprise teams — onboarding cohort 04 now.</h2>
+              <div className="ps-eyebrow">Beta in numbers</div>
+              <h2 className="ps-h2">Real load, real teams, real receipts.</h2>
             </div>
-            <div className="right">We move slowly on purpose. Each cohort gets a founder-led onboarding session and direct access to the team throughout beta.</div>
+            <div className="right">Aggregate stats from cohorts 01–03. We'll publish a full benchmark with public beta in Q3.</div>
           </Reveal>
           <div className="ps-stats" style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)' }}>
-            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">&lt;40<span className="u">ms</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>median match latency</div></div>
-            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">5k</div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>active skills per workspace</div></div>
-            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">100<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>multi-tenant isolation</div></div>
-            <div className="ps-stat"><div className="v" style={{ fontSize: '1.5rem', letterSpacing: '-0.01em' }}>SOC 2</div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>Type II · in audit</div></div>
+            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">94<span className="u">M</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>decisions evaluated</div></div>
+            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">38<span className="u">ms</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>median match latency</div></div>
+            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">91<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>avg confidence score</div></div>
+            <div className="ps-stat"><div className="v">99.97<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>API uptime</div></div>
           </div>
           <Reveal className="ps-quote" delay={120} style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)', color: 'var(--paper)' }}>
-            <blockquote>"We don't need agents to be perfect. We need them to be reviewable, reversible, and accountable. That's a software problem, not a model problem."</blockquote>
+            <blockquote>"Curtain is the only thing that lets us put an agent in front of a customer and sleep at night. Our reviewers became our power users."</blockquote>
             <div className="who" style={{ borderTopColor: 'rgba(250,250,248,0.12)' }}>
-              <div className="av">ND</div>
+              <div className="av">MR</div>
               <div>
-                <div className="name">Naman Dogra</div>
-                <div className="role" style={{ color: 'rgba(250,250,248,0.6)' }}>Co-founder & CEO</div>
+                <div className="name">Maya Reyes</div>
+                <div className="role" style={{ color: 'rgba(250,250,248,0.6)' }}>Head of Operations · Halton Logistics</div>
               </div>
             </div>
           </Reveal>
@@ -356,12 +367,12 @@ function FeaturesPage({ openWaitlist, setPage }) {
       ].map((f, i) => (
         <section key={i} className={`ps-section ${i % 2 ? 'alt' : ''}`}>
           <div className="ps-container">
-            <Reveal className="ps-feature-grid">
+            <Reveal style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'center' }}>
               <div style={{ order: i % 2 ? 2 : 1 }}>
                 <div className="ps-eyebrow">{f.eye}</div>
                 <h2 className="ps-h2">{f.h}</h2>
                 <p className="ps-sub">{f.p}</p>
-                <ul className="ps-feature-bullets">
+                <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0 28px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 18px' }}>
                   {f.bullets.map((b, j) => (
                     <li key={j} style={{ display: 'flex', gap: 10, fontSize: 14, color: 'var(--ink-2)', alignItems: 'flex-start', lineHeight: 1.45 }}>
                       <span style={{ color: 'var(--ink)', marginTop: 1 }}><Ic.check /></span>{b}

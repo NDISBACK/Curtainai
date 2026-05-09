@@ -198,7 +198,7 @@ const QueryConsole = ({ openSkill, goto }) => {
       {state === 'idle' && (
         <div className="card">
           <div className="card-body" style={{ padding: 28 }}>
-            <div className="grid-3col">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
               {[
                 { h: '1. Match', t: 'Hybrid search (keyword + vector) narrows active skills to top candidates.' },
                 { h: '2. Decide', t: 'A reasoning model picks the best skill and copies its decision verbatim.' },
@@ -215,7 +215,7 @@ const QueryConsole = ({ openSkill, goto }) => {
       )}
 
       {state !== 'idle' && (
-        <div className="result" style={{ gap: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 320px', gap: 18 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
 
             {/* Decision card */}
@@ -562,7 +562,6 @@ const SettingsPage = ({ workspace, onWorkspaceUpdated }) => {
   const [loadingKeys, setLoadingKeys] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [newKeyName, setNewKeyName] = React.useState('');
-  const [newKeyScope, setNewKeyScope] = React.useState('full');
   const [createdKey, setCreatedKey] = React.useState(null);
   const [err, setErr] = React.useState(null);
   const [success, setSuccess] = React.useState(null);
@@ -606,13 +605,9 @@ const SettingsPage = ({ workspace, onWorkspaceUpdated }) => {
   const createKey = async () => {
     if (!newKeyName.trim()) return;
     try {
-      const result = await window.api._fetch(`/workspaces/${window.api._wsId}/api-keys`, {
-        method: 'POST',
-        body: JSON.stringify({ name: newKeyName.trim(), scope: newKeyScope }),
-      });
+      const result = await window.api.createApiKey(newKeyName.trim());
       setCreatedKey(result);
       setNewKeyName('');
-      setNewKeyScope('full');
       await loadKeys();
     } catch (e) {
       setErr(e.message);
@@ -702,41 +697,6 @@ const SettingsPage = ({ workspace, onWorkspaceUpdated }) => {
         </div>
       </div>
 
-      {/* Escalation routing */}
-      <div className="card settings-section" style={{ marginBottom: 24 }}>
-        <div className="card-head">
-          <div>
-            <div className="card-title">Escalation routing</div>
-            <div className="card-sub" style={{ marginTop: 2 }}>Where escalated queries are sent when your engine can't auto-resolve them</div>
-          </div>
-        </div>
-        <div className="settings-row">
-          <div>
-            <div className="settings-row-label">Webhook URL</div>
-            <div className="settings-row-sub">Receives a POST with the escalation payload within 8s of each escalation</div>
-          </div>
-          <input className="settings-input" style={{ width: 280 }} type="url"
-            placeholder="https://hooks.slack.com/… or your endpoint"
-            value={wsCopy.settings.escalation_webhook_url || ''}
-            onChange={e => setSetting('escalation_webhook_url', e.target.value || null)} />
-        </div>
-        <div className="settings-row">
-          <div>
-            <div className="settings-row-label">Fallback email</div>
-            <div className="settings-row-sub">Email sent if SMTP_URL is configured in your deployment (optional)</div>
-          </div>
-          <input className="settings-input" style={{ width: 240 }} type="email"
-            placeholder="oncall@yourcompany.com"
-            value={wsCopy.settings.escalation_email || ''}
-            onChange={e => setSetting('escalation_email', e.target.value || null)} />
-        </div>
-        <div style={{ padding: '14px 18px', display: 'flex', justifyContent: 'flex-end' }}>
-          <button className="btn primary" onClick={saveWorkspace} disabled={saving}>
-            {saving ? 'Saving…' : 'Save routing'}
-          </button>
-        </div>
-      </div>
-
       {/* API Keys */}
       <div className="card settings-section" style={{ marginBottom: 24 }}>
         <div className="card-head">
@@ -759,24 +719,17 @@ const SettingsPage = ({ workspace, onWorkspaceUpdated }) => {
 
         <table className="table">
           <thead>
-            <tr><th>Name</th><th>Prefix</th><th>Scope</th><th>Created</th><th>Last used</th><th>Status</th><th></th></tr>
+            <tr><th>Name</th><th>Prefix</th><th>Created</th><th>Last used</th><th>Status</th><th></th></tr>
           </thead>
           <tbody>
-            {loadingKeys && <SkeletonRow cols={7} />}
+            {loadingKeys && <SkeletonRow cols={6} />}
             {!loadingKeys && apiKeys.length === 0 && (
-              <tr><td colSpan="7" className="empty">No API keys. Create one below.</td></tr>
+              <tr><td colSpan="6" className="empty">No API keys. Create one below.</td></tr>
             )}
             {!loadingKeys && apiKeys.map(k => (
               <tr key={k.id} style={{ cursor: 'default' }}>
                 <td style={{ fontWeight: 500 }}>{k.name}</td>
                 <td><span className="id-tag">{k.key_prefix}…</span></td>
-                <td>
-                  <span style={{ fontSize: 11, fontWeight: 500, padding: '2px 7px', borderRadius: 4,
-                    background: k.scope === 'full' ? 'var(--accent-soft)' : k.scope === 'read_only' ? 'var(--bg-subtle)' : 'var(--success-soft)',
-                    color: k.scope === 'full' ? 'var(--accent-ink)' : k.scope === 'read_only' ? 'var(--ink-2)' : 'var(--success)' }}>
-                    {k.scope === 'full' ? 'Full' : k.scope === 'read_only' ? 'Read-only' : 'Query only'}
-                  </span>
-                </td>
                 <td style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{fmtDate(k.created_at)}</td>
                 <td style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{k.last_used_at ? fmtRelative(k.last_used_at) : '—'}</td>
                 <td>
@@ -796,16 +749,10 @@ const SettingsPage = ({ workspace, onWorkspaceUpdated }) => {
           </tbody>
         </table>
 
-        <div style={{ padding: '14px 18px', display: 'flex', gap: 8, borderTop: '1px solid var(--line-2)', flexWrap: 'wrap' }}>
-          <input className="filter-input" style={{ maxWidth: 200 }} placeholder="Key name (e.g. Production)"
+        <div style={{ padding: '14px 18px', display: 'flex', gap: 8, borderTop: '1px solid var(--line-2)' }}>
+          <input className="filter-input" style={{ maxWidth: 240 }} placeholder="Key name (e.g. Production)"
             value={newKeyName} onChange={e => setNewKeyName(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') createKey(); }} />
-          <select className="field-input" style={{ padding: '6px 10px', fontSize: 13, width: 'auto' }}
-            value={newKeyScope} onChange={e => setNewKeyScope(e.target.value)}>
-            <option value="full">Full access</option>
-            <option value="read_only">Read-only</option>
-            <option value="query_only">Query only</option>
-          </select>
           <button className="btn primary" onClick={createKey} disabled={!newKeyName.trim()}>
             <Icon name="plus" size={13} /> Create key
           </button>

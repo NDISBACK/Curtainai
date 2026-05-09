@@ -42,10 +42,6 @@ const Icon = ({ name, size = 16, stroke = 1.6, style: extraStyle }) => {
     extract: <><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></>,
     simulate: <><rect x="2" y="6" width="8" height="12" rx="1.5"/><rect x="14" y="6" width="8" height="12" rx="1.5"/><path d="M10 12h4"/><path d="M13 10l2 2-2 2"/></>,
     book: <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h6"/></>,
-    mcp: <><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></>,
-    escalation: <><path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10"/><path d="m17 21 2-2-2-2"/><path d="M19 19h-5"/><path d="M8 7h8M8 11h6"/></>,
-    team: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
-    audit: <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h4"/></>,
   };
   return <svg viewBox="0 0 24 24" {...s}>{paths[name] || null}</svg>;
 };
@@ -106,25 +102,19 @@ const StatusBadge = ({ status }) => {
   return <span className={`badge ${m.cls}`}><span className="dot"></span>{m.label}</span>;
 };
 
-const Sidebar = ({ page, setPage, workspace, skillCount, pendingCount, openEscalationCount }) => {
+const Sidebar = ({ page, setPage, workspace, skillCount, pendingCount }) => {
   const items = [
-    { id: 'dashboard',   label: 'Dashboard',         icon: 'dashboard' },
-    { id: 'skills',      label: 'Skills',             icon: 'skills',     count: skillCount },
-    { id: 'escalations', label: 'Escalation Inbox',   icon: 'escalation', count: openEscalationCount || null },
-    { id: 'extraction',  label: 'Extraction Studio',  icon: 'sparkle' },
-    { id: 'connections', label: 'Connections',         icon: 'branch' },
-    { id: 'mcp',         label: 'MCP Console',         icon: 'mcp' },
-    { id: 'simulation',  label: 'Simulation Lab',      icon: 'simulate' },
-    { id: 'test',        label: 'Query Console',       icon: 'bolt' },
-    { id: 'live',        label: 'Live Feed',           icon: 'bolt' },
-    { id: 'activity',    label: 'Activity',            icon: 'activity' },
-    { id: 'analytics',   label: 'Analytics',           icon: 'chart' },
+    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { id: 'skills', label: 'Skills', icon: 'skills', count: skillCount },
+    { id: 'extraction', label: 'Extraction Studio', icon: 'sparkle' },
+    { id: 'simulation', label: 'Simulation Lab', icon: 'simulate' },
+    { id: 'test', label: 'Query Console', icon: 'bolt' },
+    { id: 'activity', label: 'Activity', icon: 'activity' },
+    { id: 'analytics', label: 'Analytics', icon: 'chart' },
   ];
   const more = [
-    { id: 'team',     label: 'Team',            icon: 'team' },
-    { id: 'audit',    label: 'Audit Log',        icon: 'audit' },
-    { id: 'docs',     label: 'Python SDK Docs',  icon: 'book' },
-    { id: 'settings', label: 'Settings',         icon: 'settings' },
+    { id: 'docs',     label: 'Python SDK Docs', icon: 'book' },
+    { id: 'settings', label: 'Settings', icon: 'settings' },
   ];
   const wsShort = workspace?.id ? workspace.id.slice(0, 8) : '…';
   return (

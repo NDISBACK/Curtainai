@@ -17,11 +17,6 @@ export const ListSkillsQuerySchema = z.object({
   status: z.enum(['pending_review', 'active', 'disabled']).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-  search: z.string().max(200).optional(),
-});
-
-export const BatchApproveSchema = z.object({
-  ids: z.array(z.string().uuid()).min(1).max(200),
 });
 
 // ─── Export / Import ──────────────────────────────────────────────────────────

@@ -1,7 +1,6 @@
 import OpenAI from 'openai';
-import { EventEmitter } from 'events';
+import { skillService } from './skillService';
 import { embeddingService } from './embeddingService';
-import { fireEscalationNotification } from './escalationService';
 import { queryRepository } from '../repositories/queryRepository';
 import { skillRepository } from '../repositories/skillRepository';
 import { jaccardSimilarity } from '../utils/similarity';
@@ -12,9 +11,6 @@ import { env } from '../config/env';
 import { validateOrThrow } from '../validation';
 import { LLMSelectionResponseSchema } from '../validation/query.schema';
 import type { SkillRow, WorkspaceRow } from '../types/entities';
-
-export const decisionEmitter = new EventEmitter();
-decisionEmitter.setMaxListeners(200);
 
 // ─── OpenAI client ────────────────────────────────────────────────────────────
 
@@ -277,7 +273,7 @@ export const queryService = {
     const topK   = input.workspace?.settings?.top_k         ?? DEFAULT_TOP_K;
     const alpha  = input.workspace?.settings?.hybrid_alpha  ?? 0.5;
 
-    const activeSkills = await skillRepository.findAllActiveByWorkspace(input.workspace_id);
+    const activeSkills = await skillService.getActiveForWorkspace(input.workspace_id, 1, 200);
 
     // ── No active skills ───────────────────────────────────────────────────────
     if (activeSkills.length === 0) {
@@ -288,9 +284,6 @@ export const queryService = {
       };
       const query_id = await persistTrace(input.workspace_id, input.query, null, trace);
       logger.warn('query.no_active_skills', { query_id, workspace_id: input.workspace_id });
-      if (input.workspace) {
-        fireEscalationNotification({ query_id, workspace_id: input.workspace_id, query: input.query, decision: trace.decision, confidence: 0, created_at: new Date().toISOString() }, input.workspace.settings).catch(() => {});
-      }
       return { query_id, decision: trace.decision, confidence: 0, skill_id: null, escalate: true };
     }
 
@@ -355,29 +348,6 @@ export const queryService = {
       escalate: selection.escalate,
       method,
       candidates_count: candidates.length,
-    });
-
-    if (selection.escalate && input.workspace) {
-      fireEscalationNotification({
-        query_id,
-        workspace_id: input.workspace_id,
-        query: input.query,
-        decision: selection.decision,
-        confidence: selection.confidence,
-        created_at: new Date().toISOString(),
-      }, input.workspace.settings).catch(() => {});
-    }
-
-    decisionEmitter.emit('decision', {
-      id:           query_id,
-      workspace_id: input.workspace_id,
-      input:        input.query.slice(0, 120),
-      decision:     selection.decision,
-      skill_name:   candidates.find(c => c.skill.id === selection.skill_id)?.skill.name ?? null,
-      confidence:   selection.confidence,
-      escalated:    selection.escalate,
-      search_method: method,
-      created_at:   new Date().toISOString(),
     });
 
     return { query_id, ...selection };

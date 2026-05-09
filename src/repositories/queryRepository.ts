@@ -92,39 +92,6 @@ export class QueryRepository extends BaseRepository {
 
     return data as QueryRow;
   }
-
-  async resolveEscalation(id: string, workspaceId: string, note?: string): Promise<QueryRow> {
-    const { data, error } = await this.from()
-      .update({ escalation_status: 'resolved', resolved_at: new Date().toISOString(), resolved_note: note ?? null })
-      .eq('id', id)
-      .eq('workspace_id', workspaceId)
-      .eq('escalated', true)
-      .select()
-      .single();
-
-    if (error) throw new AppError(error.message, error.code === 'PGRST116' ? 404 : 500);
-    return data as QueryRow;
-  }
-
-  async findEscalated(
-    workspaceId: string,
-    status: 'open' | 'resolved' | 'all',
-    page = 1,
-    limit = 20
-  ): Promise<{ data: QueryRow[]; total: number }> {
-    const offset = (page - 1) * limit;
-    let query = this.from()
-      .select('*', { count: 'exact' })
-      .eq('workspace_id', workspaceId)
-      .eq('escalated', true)
-      .order('created_at', { ascending: false });
-
-    if (status !== 'all') query = query.eq('escalation_status', status);
-
-    const { data, error, count } = await query.range(offset, offset + limit - 1);
-    if (error) throw new AppError(error.message, 500);
-    return { data: (data ?? []) as QueryRow[], total: count ?? 0 };
-  }
 }
 
 export const queryRepository = new QueryRepository();

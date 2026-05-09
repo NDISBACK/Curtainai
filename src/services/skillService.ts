@@ -3,13 +3,7 @@ import { skillVersionRepository } from '../repositories/skillVersionRepository';
 import { embeddingService } from './embeddingService';
 import { AppError } from '../utils/AppError';
 import { jaccardSimilarity } from '../utils/similarity';
-import { findConflicts, type ConflictResult } from '../utils/conflictDetector';
 import type { SkillRow } from '../types/entities';
-
-export interface ApproveResult {
-  skill:     SkillRow;
-  conflicts: ConflictResult[];  // non-empty = warnings; approval still succeeded
-}
 
 const DUPLICATE_THRESHOLD = 0.75;
 
@@ -196,9 +190,8 @@ export const skillService = {
 
   /**
    * Approve a pending_review skill — makes it active and visible to the query engine.
-   * Returns the skill plus any conflict warnings (approval still happens; conflicts are advisory).
    */
-  async approve(id: string): Promise<ApproveResult> {
+  async approve(id: string): Promise<SkillRow> {
     const skill = await skillRepository.findById(id);
 
     if (skill.status === 'active') {
@@ -209,18 +202,7 @@ export const skillService = {
       throw new AppError('Cannot approve a disabled skill. Re-enable it first.', 400);
     }
 
-    const approved = await skillRepository.update(id, { status: 'active' });
-
-    // Check for conflicts with existing active skills (non-blocking — warnings only)
-    const conflicts = await findConflicts(
-      approved.embedding,
-      approved.trigger_condition ?? '',
-      approved.decision ?? '',
-      approved.workspace_id,
-      id
-    ).catch(() => []);
-
-    return { skill: approved, conflicts };
+    return skillRepository.update(id, { status: 'active' });
   },
 
   /**
@@ -278,26 +260,5 @@ export const skillService = {
 
   async deleteSkill(id: string): Promise<void> {
     return skillRepository.delete(id);
-  },
-
-  async batchApprove(ids: string[], workspaceId: string): Promise<{ approved: string[]; skipped: string[] }> {
-    if (ids.length === 0) throw new AppError('No skill IDs provided', 400);
-    if (ids.length > 200) throw new AppError('Cannot batch approve more than 200 skills at once', 400);
-
-    const skills = await skillRepository.findManyByIds(ids, workspaceId);
-    const approved: string[] = [];
-    const skipped: string[] = [];
-
-    await Promise.all(skills.map(async skill => {
-      if (skill.status !== 'pending_review') { skipped.push(skill.id); return; }
-      await skillRepository.update(skill.id, { status: 'active' });
-      approved.push(skill.id);
-    }));
-
-    return { approved, skipped };
-  },
-
-  async searchForWorkspace(workspaceId: string, search: string, page = 1, limit = 20): Promise<SkillRow[]> {
-    return skillRepository.findAllByWorkspace(workspaceId, page, limit, undefined, search);
   },
 };
