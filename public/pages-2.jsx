@@ -198,7 +198,7 @@ const QueryConsole = ({ openSkill, goto }) => {
       {state === 'idle' && (
         <div className="card">
           <div className="card-body" style={{ padding: 28 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+            <div className="grid-3col">
               {[
                 { h: '1. Match', t: 'Hybrid search (keyword + vector) narrows active skills to top candidates.' },
                 { h: '2. Decide', t: 'A reasoning model picks the best skill and copies its decision verbatim.' },
@@ -215,7 +215,7 @@ const QueryConsole = ({ openSkill, goto }) => {
       )}
 
       {state !== 'idle' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 320px', gap: 18 }}>
+        <div className="result" style={{ gap: 18 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
 
             {/* Decision card */}

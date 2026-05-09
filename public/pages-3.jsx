@@ -339,7 +339,7 @@ const ExtractionStudio = ({ goto }) => {
                       <Ring value={conf} size={40} />
                     </div>
                   </div>
-                  <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                  <div className="card-body grid-2col">
                     <div className="field" style={{ margin: 0 }}>
                       <label style={{ fontSize: 11 }}>Trigger condition</label>
                       <textarea
@@ -520,7 +520,7 @@ const GapsTab = ({ goto }) => {
                     }}>"{q}"</div>
                   ))}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="grid-2col-sm">
                   <div>
                     <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', fontWeight: 500, marginBottom: 4 }}>Suggested trigger</div>
                     <div style={{ fontSize: 13, color: 'var(--ink-2)' }}>{cluster.suggested_skill.trigger_condition}</div>
@@ -759,7 +759,7 @@ const AnalyticsPage = ({ goto }) => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.65fr) minmax(0,1fr)', gap: 18, marginBottom: 18 }}>
+      <div className="grid-main-wide" style={{ marginBottom: 18 }}>
         <div className="card">
           <div className="card-head">
             <div>

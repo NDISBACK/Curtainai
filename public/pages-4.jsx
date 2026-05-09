@@ -138,7 +138,7 @@ const SimSkillCard = ({ skill, idx, onChange, onRemove }) => {
         </button>
       </div>
 
-      <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <div className="card-body grid-2col">
         <div className="field" style={{ margin: 0 }}>
           <label style={{ fontSize: 11 }}>Trigger condition *</label>
           <textarea
@@ -257,8 +257,7 @@ const ExampleRow = ({ ex, isExpanded, onToggle }) => {
 
       {/* Expanded before / after panel */}
       {isExpanded && (
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr',
+        <div className="grid-before-after" style={{
           borderTop: `1px solid ${meta ? meta.borderColor : 'var(--line)'}`,
         }}>
           {/* Before */}
@@ -476,7 +475,7 @@ const SimulationPage = () => {
 
         {err && <ErrorAlert message={err} onRetry={() => setErr(null)} />}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.55fr) minmax(0,1fr)', gap: 18, alignItems: 'start' }}>
+        <div className="grid-main-aside">
           {/* Left — skill editor */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div className="card">
@@ -865,7 +864,7 @@ const SimulationPage = () => {
           <div className="card-sub">{result.changed_decisions} of {totalQ} queries affected · {Math.round(result.unchanged / Math.max(totalQ, 1) * 100)}% stable</div>
         </div>
         <div className="card-body">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div className="grid-4col">
             {[
               ['auto_to_escalate', impact_summary.auto_to_escalate],
               ['escalate_to_auto', impact_summary.escalate_to_auto],
@@ -904,7 +903,7 @@ const SimulationPage = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.65fr) minmax(0,1fr)', gap: 18, alignItems: 'start' }}>
+      <div className="grid-main-wide">
         {/* Examples */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>

@@ -1,9 +1,4 @@
-"""
-Curtain AI  Investor Demo
-==========================
-Run: python demo_investor.py
-Requires: CURTAIN_API_KEY and CURTAIN_WORKSPACE_ID set (or edit the constants below).
-"""
+
 
 import os
 import sys

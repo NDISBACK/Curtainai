@@ -406,7 +406,7 @@ const Dashboard = ({ goto, openSkill, workspace }) => {
         </div>
       </div>
 
-      <div className="dash-cards-3" style={{ marginTop: 18, gridTemplateColumns: 'repeat(4, 1fr)' }}>
+      <div className="dash-cards-4" style={{ marginTop: 18 }}>
         {[
           { title: 'Extraction Studio', count: null, sub: 'Learn from conversations instantly', icon: 'sparkle', cta: 'Open studio', go: 'extraction' },
           { title: 'Escalations', count: escalatedCount > 0 ? escalatedCount : null, sub: escalatedCount > 0 ? `of ${queries.length} recent queries` : 'No escalations recently', icon: 'arrowup', cta: 'See activity', go: 'activity' },
@@ -870,7 +870,7 @@ const SkillDetail = ({ id, back }) => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div className="card">
-              <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="card-body grid-2col">
                 <div>
                   <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', fontWeight: 500 }}>Versions</div>
                   <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em' }}>{versions.length || '—'}</div>

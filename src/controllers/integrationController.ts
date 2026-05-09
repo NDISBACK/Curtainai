@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { env } from '../config/env';
 import { integrationService } from '../services/integrationService';
 import { gmailService } from '../services/gmailService';
 import { integrationRepository } from '../repositories/integrationRepository';
@@ -118,7 +119,8 @@ export const gmailOAuthCallback = catchAsync(async (req: Request, res: Response)
     last_synced_at: null,
   });
 
-  res.redirect('/app.html?connected=gmail');
+  const base = env.frontendUrl || '';
+  res.redirect(`${base}/app.html?connected=gmail`);
 });
 
 export const cancelSync = catchAsync(async (req: Request, res: Response) => {
