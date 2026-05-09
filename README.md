@@ -28,11 +28,12 @@
 
 ---
 
-## See It in Action
+## Demo
 
 <div align="center">
   <a href="https://youtu.be/l0PxZbWFdoA">
-    <img src="https://img.youtube.com/vi/l0PxZbWFdoA/maxresdefault.jpg" alt="Watch the Curtain AI demo" width="900" />
+    <img src="https://img.youtube.com/vi/l0PxZbWFdoA/maxresdefault.jpg" alt="Watch the Curtain AI demo" width="900" /><br/>
+    <img src="https://img.shields.io/badge/▶%20%20Watch%20the%20Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Demo" height="36" />
   </a>
 </div>
 
