@@ -3,27 +3,14 @@
 var { useState, useEffect, useRef, useMemo } = React;
 var Ic = PSCommon.Ic, Reveal = PSCommon.Reveal, WLButton = PSCommon.WLButton, CTABanner = PSCommon.CTABanner;
 
-// ─── Live counter (signups + decisions) ────────────────────────────
-function LiveCounter() {
-  const [n, setN] = useState({ signups: 100, decisions: 1000, teams: 23, audits: 612 });
-  useEffect(() => {
-    const t = setInterval(() => {
-      setN(prev => ({
-        signups: prev.signups + (Math.random() < 0.5 ? 1 : 0),
-        decisions: prev.decisions + Math.floor(20 + Math.random() * 80),
-        teams: prev.teams,
-        audits: prev.audits + (Math.random() < 0.3 ? 1 : 0),
-      }));
-    }, 1800);
-    return () => clearInterval(t);
-  }, []);
-  const fmt = (n) => n.toLocaleString();
+// ─── Technical specs strip (replaces fake live counter) ────────────
+function TechSpecs() {
   return (
     <div className="ps-counter">
-      <div className="c"><div className="v">{fmt(n.signups)}</div><div className="l">on the waitlist</div></div>
-      <div className="c"><div className="v">{fmt(n.decisions)}</div><div className="l">decisions evaluated · last 30d</div></div>
-      <div className="c"><div className="v">{fmt(n.teams)}</div><div className="l">teams in closed beta</div></div>
-      <div className="c"><div className="v">{fmt(n.audits)}</div><div className="l">audit exports this week</div></div>
+      <div className="c"><div className="v">&lt; 40<span style={{ fontSize: '0.55em', fontWeight: 500, letterSpacing: 0, marginLeft: 2 }}>ms</span></div><div className="l">median match latency</div></div>
+      <div className="c"><div className="v">5<span style={{ fontSize: '0.55em', fontWeight: 500, letterSpacing: 0, marginLeft: 2 }}>k</span></div><div className="l">active skills per workspace</div></div>
+      <div className="c"><div className="v">100<span style={{ fontSize: '0.55em', fontWeight: 500, letterSpacing: 0, marginLeft: 2 }}>%</span></div><div className="l">multi-tenant data isolation</div></div>
+      <div className="c"><div className="v" style={{ fontSize: '1.1rem', letterSpacing: '-0.01em' }}>REST + MCP</div><div className="l">API-first · no SDK lock-in</div></div>
     </div>
   );
 }
@@ -121,10 +108,10 @@ function HomePage({ openWaitlist, setPage }) {
                 <WLButton size="lg" ghost onClick={() => setPage('features')} label="See how it works" />
               </div>
               <div className="ps-hero-meta">
-                <span><strong>100</strong> on waitlist</span><span className="dot"/>
+                <span>Private beta · cohort 04 open</span><span className="dot"/>
                 <span><strong>~2 wk</strong> invite cycle</span><span className="dot"/>
                 <span>SOC 2 in audit</span><span className="dot"/>
-                <span>REST API + SDKs</span>
+                <span>REST API + MCP</span>
               </div>
             </div>
             <div style={{ position: 'relative' }}>
@@ -139,16 +126,16 @@ function HomePage({ openWaitlist, setPage }) {
               </div>
             </div>
           </div>
-          <LiveCounter />
+          <TechSpecs />
         </div>
       </section>
 
-      {/* LOGOS */}
+      {/* VERTICALS */}
       <section style={{ padding: '8px 0 0' }}>
         <div className="ps-container">
-          <div className="ps-logos-cap">Trusted by closed-beta teams shipping production agents</div>
+          <div className="ps-logos-cap">Built for teams deploying agents in production</div>
           <div className="ps-logos">
-            {['Halton','Foundry/9','Northwind','Aperture','Thirdline','Kestrel'].map((n, i) => (
+            {['Customer Support','Sales & Quoting','Operations','Fintech','Healthcare Ops','Internal Tools'].map((n, i) => (
               <div key={i} className={i % 2 ? 'ps-logo mono' : 'ps-logo'}>{n}</div>
             ))}
           </div>
@@ -266,29 +253,29 @@ function HomePage({ openWaitlist, setPage }) {
         </div>
       </section>
 
-      {/* STATS */}
+      {/* EARLY ACCESS */}
       <section className="ps-section dark">
         <div className="ps-container">
           <Reveal className="ps-section-head">
             <div>
-              <div className="ps-eyebrow">Beta in numbers</div>
-              <h2 className="ps-h2">Real load, real teams, real receipts.</h2>
+              <div className="ps-eyebrow">Early access</div>
+              <h2 className="ps-h2">In private beta with enterprise teams — onboarding cohort 04 now.</h2>
             </div>
-            <div className="right">Aggregate stats from cohorts 01–03. We'll publish a full benchmark with public beta in Q3.</div>
+            <div className="right">We move slowly on purpose. Each cohort gets a founder-led onboarding session and direct access to the team throughout beta.</div>
           </Reveal>
           <div className="ps-stats" style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)' }}>
-            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">0.8<span className="u">M</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>decisions evaluated</div></div>
-            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">38<span className="u">ms</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>median match latency</div></div>
-            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">91<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>avg confidence score</div></div>
-            <div className="ps-stat"><div className="v">99.97<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>API uptime</div></div>
+            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">&lt;40<span className="u">ms</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>median match latency</div></div>
+            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">5k</div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>active skills per workspace</div></div>
+            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">100<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>multi-tenant isolation</div></div>
+            <div className="ps-stat"><div className="v" style={{ fontSize: '1.5rem', letterSpacing: '-0.01em' }}>SOC 2</div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>Type II · in audit</div></div>
           </div>
           <Reveal className="ps-quote" delay={120} style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)', color: 'var(--paper)' }}>
-            <blockquote>"Curtain is the only thing that lets us put an agent in front of a customer and sleep at night. Our reviewers became our power users."</blockquote>
+            <blockquote>"We don't need agents to be perfect. We need them to be reviewable, reversible, and accountable. That's a software problem, not a model problem."</blockquote>
             <div className="who" style={{ borderTopColor: 'rgba(250,250,248,0.12)' }}>
-              <div className="av">MR</div>
+              <div className="av">DK</div>
               <div>
-                <div className="name">Maya Reyes</div>
-                <div className="role" style={{ color: 'rgba(250,250,248,0.6)' }}>Head of Operations · Halton Logistics</div>
+                <div className="name">Daria Köhler</div>
+                <div className="role" style={{ color: 'rgba(250,250,248,0.6)' }}>Co-founder & CEO</div>
               </div>
             </div>
           </Reveal>

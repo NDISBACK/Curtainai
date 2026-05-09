@@ -218,6 +218,60 @@ class CurtainAPI {
     return this._fetch(`/analytics/gaps?limit=${limit}`);
   }
 
+  // ── Escalations ───────────────────────────────────────────────────────────
+  listEscalations(params = {}) {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
+    ).toString();
+    return this._fetch(`/escalations${qs ? '?' + qs : ''}`);
+  }
+
+  resolveEscalation(id, note) {
+    return this._fetch(`/escalations/${id}/resolve`, {
+      method: 'PATCH',
+      body: JSON.stringify({ note }),
+    });
+  }
+
+  // ── Batch operations ──────────────────────────────────────────────────────
+  batchApproveSkills(ids) {
+    return this._fetch('/skills/batch-approve', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    });
+  }
+
+  // ── Audit log ─────────────────────────────────────────────────────────────
+  listAuditLogs(params = {}) {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
+    ).toString();
+    return this._fetch(`/audit${qs ? '?' + qs : ''}`);
+  }
+
+  // ── Team members ──────────────────────────────────────────────────────────
+  listTeam() {
+    return this._fetch('/team');
+  }
+
+  addTeamMember(email, role, name) {
+    return this._fetch('/team', {
+      method: 'POST',
+      body: JSON.stringify({ email, role, name }),
+    });
+  }
+
+  updateTeamMember(id, patch) {
+    return this._fetch(`/team/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    });
+  }
+
+  removeTeamMember(id) {
+    return this._fetch(`/team/${id}`, { method: 'DELETE' });
+  }
+
   // ── MCP ───────────────────────────────────────────────────────────────────
   async mcpCall(method, params = null) {
     const payload = { jsonrpc: '2.0', id: Date.now(), method };

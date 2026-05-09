@@ -368,70 +368,61 @@ GET /api/v1/queries?escalated=true&limit=20&page=1
 
 // ─── CUSTOMERS PAGE ────────────────────────────────────────────────
 function CustomersPage({ openWaitlist }) {
-  const stories = [
+  const useCases = [
     {
-      who: 'Halton Logistics',
-      sector: 'Supply chain · 240 employees',
-      h: '"We put an autonomous ops agent in front of $4M / week of supplier decisions — and our reviewers became its biggest fans."',
-      p: 'Halton built a planning agent that reroutes shipments when weather or capacity shifts. Curtain governs every reroute over $5k. Reviewers triage in seconds; auditors get a complete query log every quarter.',
-      stats: [{ v: '12,481', l: 'queries / month' }, { v: '38ms', l: 'median match' }, { v: '94%', l: 'avg confidence' }],
-      avatar: 'MR', name: 'Maya Reyes', role: 'Head of Operations',
+      vertical: 'Customer Support',
+      h: 'Handle refunds, plan changes, and escalations without ticket-by-ticket review.',
+      p: 'Deploy a support agent that policy-checks every action before it reaches the customer. Routine decisions auto-match a skill; edge cases escalate to a human with full context — query, history, and a suggested resolution already in the console.',
+      bullets: ['Refund approval policies by amount and account status', 'Plan change and cancellation workflows', 'Escalation routing with full decision trace'],
     },
     {
-      who: 'Foundry/9',
-      sector: 'Customer support · Series B',
-      h: '"Refunds went from a 6-person queue to a single reviewer on rotation."',
-      p: 'Foundry/9 operates a support agent across 14 locales. With Curtain, refunds under $500 to verified accounts auto-match a skill. Anything escalated lands in the query console with full context — reasoning, customer history, suggested resolution.',
-      stats: [{ v: '83%', l: 'skill-matched' }, { v: '12s', l: 'p95 review' }, { v: '$0', l: 'fraud loss · 90d' }],
-      avatar: 'JK', name: 'Jordan Kapoor', role: 'VP Engineering',
+      vertical: 'Sales & Quoting',
+      h: 'Every quote your agent generates is policy-checked before it reaches the customer.',
+      p: 'Sales agents that handle custom quotes, discount requests, and contract changes need guardrails that move as fast as the deal. Curtain matches each action to a skill, scores confidence, and flags anything outside policy for a reviewer — in under 40ms.',
+      bullets: ['Discount approval by tier, amount, and deal size', 'Custom quote generation with policy bounds', 'Contract change routing with audit trail'],
     },
     {
-      who: 'Aperture',
-      sector: 'Sales · Mid-market',
-      h: '"Analytics caught a skills gap two hours after we shipped a new agent. Saved us a week of customer cleanup."',
-      p: 'Aperture\'s sales agent generates custom quotes. After a routine prompt update, Curtain\'s escalation rate spiked — new decision types with no matching skills. The team extracted skills from the flagged queries and was back to baseline within the hour.',
-      stats: [{ v: '2h', l: 'to detect gap' }, { v: '0', l: 'bad quotes sent' }, { v: '11×', l: 'review throughput' }],
-      avatar: 'DS', name: 'Devon Singh', role: 'Founder & CEO',
+      vertical: 'Operations & Logistics',
+      h: 'Put guardrails on the decisions that cost money when they go wrong.',
+      p: 'Ops agents rerouting shipments, swapping suppliers, or holding inventory are making decisions with real dollar consequences. Curtain sits between the agent and the action — matching each decision to a skill, enforcing thresholds, and logging everything for your next audit.',
+      bullets: ['Supplier swap and procurement approvals', 'Inventory hold and fulfillment routing', 'Exportable audit log for any quarter'],
     },
   ];
   return (
     <div className="ps-page">
       <section className="ps-hero" style={{ padding: '64px 0 48px' }}>
         <div className="ps-container">
-          <div className="ps-eyebrow">Customers</div>
-          <h1 className="ps-h1" style={{ fontSize: 'clamp(40px, 5vw, 60px)' }}>Teams shipping real agents to real customers.</h1>
-          <p className="ps-sub" style={{ fontSize: 17 }}>Three case studies from cohorts 01–03 of the closed beta.</p>
+          <div className="ps-eyebrow">Use cases</div>
+          <h1 className="ps-h1" style={{ fontSize: 'clamp(40px, 5vw, 60px)' }}>What teams are building with Curtain.</h1>
+          <p className="ps-sub" style={{ fontSize: 17 }}>Three patterns we see across every team in the closed beta — no matter the industry.</p>
         </div>
       </section>
 
       <section className="ps-section" style={{ paddingTop: 24 }}>
         <div className="ps-container" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {stories.map((s, i) => (
+          {useCases.map((u, i) => (
             <Reveal key={i} className="story" delay={i * 80}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <div style={{ width: 38, height: 38, background: 'var(--ink)', color: 'var(--paper)', borderRadius: 9, display: 'grid', placeItems: 'center', fontWeight: 600, fontSize: 14 }}>
-                    {s.who[0]}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 15 }}>{s.who}</div>
-                    <div style={{ fontSize: 12.5, color: 'var(--ink-4)' }}>{s.sector}</div>
-                  </div>
+                <div style={{ display: 'inline-block', padding: '3px 10px', background: 'var(--accent-soft)', color: 'var(--accent-ink)', borderRadius: 999, fontSize: 12, fontWeight: 500, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>
+                  {u.vertical}
                 </div>
-                <h3>{s.h}</h3>
-                <p>{s.p}</p>
-                <div className="story-meta">
-                  <div className="av">{s.avatar}</div>
-                  <div><b>{s.name}</b> · <span>{s.role}, {s.who}</span></div>
-                </div>
+                <h3 style={{ marginTop: 0 }}>{u.h}</h3>
+                <p>{u.p}</p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {u.bullets.map((b, j) => (
+                    <li key={j} style={{ display: 'flex', gap: 9, fontSize: 13.5, color: 'var(--ink-2)', alignItems: 'flex-start' }}>
+                      <span style={{ color: 'var(--ink)', marginTop: 2, flexShrink: 0 }}><Ic.check /></span>{b}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="story-stats">
-                {s.stats.map((st, j) => (
-                  <div key={j} className="story-stat">
-                    <div className="v">{st.v}</div>
-                    <div className="l">{st.l}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
+                <div style={{ padding: '20px 22px', border: '1px solid var(--line)', borderRadius: 12, background: 'var(--bg-elev)' }}>
+                  <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.6, marginBottom: 16 }}>
+                    Interested in deploying Curtain for {u.vertical.toLowerCase()}?
                   </div>
-                ))}
+                  <WLButton size="sm" onClick={() => openWaitlist()} label="Talk to us →" />
+                </div>
               </div>
             </Reveal>
           ))}
@@ -442,16 +433,16 @@ function CustomersPage({ openWaitlist }) {
         <div className="ps-container">
           <Reveal className="ps-section-head">
             <div>
-              <div className="ps-eyebrow">Use cases</div>
-              <h2 className="ps-h2">Where teams are putting Curtain.</h2>
+              <div className="ps-eyebrow">More patterns</div>
+              <h2 className="ps-h2">Where else teams are putting Curtain.</h2>
             </div>
           </Reveal>
           <div className="ps-uc">
             {[
-              { h: 'Customer support', p: 'Refunds, plan changes, escalations — skill-match the routine, route the exceptions.' },
-              { h: 'Sales & quoting', p: 'Discount policies, custom quotes, contract changes with confidence scores + review.' },
-              { h: 'Operations & logistics', p: 'Supplier swaps, inventory moves, fulfillment routing — with full audit trails.' },
               { h: 'Internal ops', p: 'Procurement, expense, access requests — gate the actions, ship the speed.' },
+              { h: 'Healthcare workflows', p: 'Prior auth, appointment routing, care coordination — with human-in-the-loop for high-risk decisions.' },
+              { h: 'Fintech & payments', p: 'Transaction approvals, limit overrides, fraud escalations — policy-matched before they clear.' },
+              { h: 'Legal & compliance', p: 'Contract review, policy Q&A, regulatory filings — every decision logged for the audit.' },
             ].map((u, i) => (
               <Reveal key={i} className="ps-card" delay={i * 60}>
                 <h4>{u.h}</h4>
@@ -552,7 +543,7 @@ function CompanyPage({ openWaitlist }) {
         <div className="ps-container">
           <div className="ps-eyebrow">Company</div>
           <h1 className="ps-h1" style={{ fontSize: 'clamp(40px, 5vw, 64px)' }}>We're building the substrate for trustworthy agents.</h1>
-          <p className="ps-sub" style={{ fontSize: 17 }}>Twelve people across NYC and Lisbon. Backed by founders who've shipped agentic systems at scale.</p>
+          <p className="ps-sub" style={{ fontSize: 17 }}>A small founding team across NYC and Lisbon. Backed by experience shipping agentic systems at scale.</p>
         </div>
       </section>
 
@@ -571,9 +562,9 @@ function CompanyPage({ openWaitlist }) {
           <Reveal delay={120} className="ps-quote" style={{ marginTop: 0, alignSelf: 'center' }}>
             <blockquote>"We don't need agents to be perfect. We need them to be reviewable, reversible, and accountable. That's a software problem, not a model problem."</blockquote>
             <div className="who">
-              <div className="av">DK</div>
+              <div className="av">ND</div>
               <div>
-                <div className="name">Daria Köhler</div>
+                <div className="name">Naman Dogra</div>
                 <div className="role">Co-founder & CEO</div>
               </div>
             </div>
@@ -592,10 +583,9 @@ function CompanyPage({ openWaitlist }) {
           </Reveal>
           <div className="ps-grid-4">
             {[
-              { i: 'DK', n: 'Daria Köhler', r: 'CEO · prev. Stripe Issuing' },
-              { i: 'JN', n: 'Jonas Nowak', r: 'CTO · prev. DeepMind, Anthropic' },
-              { i: 'AT', n: 'Ana Teixeira', r: 'Design · prev. Linear, Vercel' },
-              { i: 'OR', n: 'Omar Ramirez', r: 'Eng · prev. Cloudflare, Cribl' },
+              { i: 'ND', n: 'Naman Dogra', r: 'CEO ·' },
+              { i: 'A', n: 'Aniket', r: 'CTO ·' },
+              { i: 'DK', n: 'Daksh Kotwal', r: 'CMO. ' },
             ].map((p, i) => (
               <Reveal key={i} className="ps-card" delay={i * 50} style={{ alignItems: 'flex-start' }}>
                 <div className="ic" style={{ background: 'linear-gradient(135deg, oklch(0.55 0.18 280), oklch(0.55 0.14 230))', borderColor: 'transparent', color: 'white', fontWeight: 600 }}>

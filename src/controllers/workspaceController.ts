@@ -11,6 +11,7 @@ import {
   UpdateWorkspaceSchema,
   CreateApiKeySchema,
 } from '../validation/workspace.schema';
+import { auditService } from '../services/auditService';
 
 // ─── Workspace ────────────────────────────────────────────────────────────────
 
@@ -68,15 +69,26 @@ export const createApiKey = catchAsync(async (req: Request, res: Response) => {
     key_hash: hash,
     key_prefix: prefix,
     name: input.name,
+    scope: (input.scope ?? 'full') as 'full' | 'read_only' | 'query_only',
     last_used_at: null,
     expires_at: input.expires_at ?? null,
     revoked_at: null,
+  });
+
+  auditService.log({
+    workspaceId: req.workspace.id,
+    actorKeyId: req.apiKeyId,
+    action: 'api_key.created',
+    resourceType: 'api_key',
+    resourceId: apiKey.id,
+    meta: { name: input.name, scope: input.scope },
   });
 
   // The raw key is returned only once — it cannot be retrieved again
   sendSuccess(res, {
     id: apiKey.id,
     name: apiKey.name,
+    scope: apiKey.scope,
     key: raw,
     prefix: apiKey.key_prefix,
     expires_at: apiKey.expires_at,
@@ -105,5 +117,6 @@ export const revokeApiKey = catchAsync(async (req: Request, res: Response) => {
   if (target.revoked_at) throw new AppError('API key is already revoked', 400);
 
   await apiKeyRepository.revoke(keyId);
+  auditService.log({ workspaceId: req.workspace.id, actorKeyId: req.apiKeyId, action: 'api_key.revoked', resourceType: 'api_key', resourceId: keyId });
   res.status(204).send();
 });

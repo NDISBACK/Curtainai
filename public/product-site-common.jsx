@@ -110,8 +110,7 @@ function WaitlistModal({ open, initialEmail = '', onClose, onSubmit, submitted }
         throw new Error(message);
       }
 
-      const pos = 1247 + Math.floor(Math.random() * 60);
-      onSubmit({ ...form, position: pos, ts: new Date().toISOString() });
+      onSubmit({ ...form, ts: new Date().toISOString() });
     } catch (err) {
       setError(err?.message || 'Could not submit. Please try again.');
     } finally {
@@ -183,12 +182,12 @@ function WaitlistModal({ open, initialEmail = '', onClose, onSubmit, submitted }
         ) : (
           <div className="ps-modal-success">
             <div className="ck-big"><Ic.check /></div>
-            <h3>You're on the list</h3>
-            <p>We'll send your invite to <b>{submitted.email}</b> as new cohorts open.</p>
+            <h3>You're on the list.</h3>
+            <p>We'll send your invite to <b>{submitted.email}</b> as the next cohort opens.</p>
+            <p style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.6, margin: '4px 0 12px' }}>We review applications weekly and onboard as capacity opens. Expect to hear from a founder directly.</p>
             <div className="ps-modal-confirm">
-              <div className="r"><span>Position</span><b>#{submitted.position}</b></div>
               <div className="r"><span>Cohort target</span><b>~2 weeks</b></div>
-              <div className="r"><span>Reference</span><b>WL-{Math.random().toString(36).slice(2, 8).toUpperCase()}</b></div>
+              <div className="r"><span>Onboarding</span><b>30-min with a founder</b></div>
             </div>
           </div>
         )}
@@ -228,12 +227,12 @@ function CTABanner({ openWaitlist }) {
 // ─── Tape ──────────────────────────────────────────────────────────
 function Tape() {
   const items = [
-    'Closed beta · cohort 04 onboarding',
-    'Spring \'26',
-    '5 teams in production',
-    'Over 3,000 decisions reviewed',
-    'Made in India',
+    'Private beta · cohort 04 open',
+    '< 40ms median match latency',
+    'Hybrid vector + keyword search',
     'SOC 2 Type II in audit',
+    'Made in India',
+    'API-first · REST + MCP',
   ];
   const all = [...items, ...items];
   return (

@@ -279,4 +279,25 @@ export const skillService = {
   async deleteSkill(id: string): Promise<void> {
     return skillRepository.delete(id);
   },
+
+  async batchApprove(ids: string[], workspaceId: string): Promise<{ approved: string[]; skipped: string[] }> {
+    if (ids.length === 0) throw new AppError('No skill IDs provided', 400);
+    if (ids.length > 200) throw new AppError('Cannot batch approve more than 200 skills at once', 400);
+
+    const skills = await skillRepository.findManyByIds(ids, workspaceId);
+    const approved: string[] = [];
+    const skipped: string[] = [];
+
+    await Promise.all(skills.map(async skill => {
+      if (skill.status !== 'pending_review') { skipped.push(skill.id); return; }
+      await skillRepository.update(skill.id, { status: 'active' });
+      approved.push(skill.id);
+    }));
+
+    return { approved, skipped };
+  },
+
+  async searchForWorkspace(workspaceId: string, search: string, page = 1, limit = 20): Promise<SkillRow[]> {
+    return skillRepository.findAllByWorkspace(workspaceId, page, limit, undefined, search);
+  },
 };
