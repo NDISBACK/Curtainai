@@ -272,9 +272,9 @@ function HomePage({ openWaitlist, setPage }) {
           <Reveal className="ps-quote" delay={120} style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)', color: 'var(--paper)' }}>
             <blockquote>"We don't need agents to be perfect. We need them to be reviewable, reversible, and accountable. That's a software problem, not a model problem."</blockquote>
             <div className="who" style={{ borderTopColor: 'rgba(250,250,248,0.12)' }}>
-              <div className="av">DK</div>
+              <div className="av">ND</div>
               <div>
-                <div className="name">Daria Köhler</div>
+                <div className="name">Naman Dogra</div>
                 <div className="role" style={{ color: 'rgba(250,250,248,0.6)' }}>Co-founder & CEO</div>
               </div>
             </div>

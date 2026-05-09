@@ -54,7 +54,6 @@ const App = () => {
 
   return (
     <div className="ps">
-      <Tape />
       <TopNav page={page} setPage={setPage} openWaitlist={openWaitlist} />
       {page === 'home'      && <HomePage      openWaitlist={openWaitlist} setPage={setPage} />}
       {page === 'features'  && <FeaturesPage  openWaitlist={openWaitlist} setPage={setPage} />}

@@ -579,7 +579,7 @@ function CompanyPage({ openWaitlist }) {
               <div className="ps-eyebrow">Team</div>
               <h2 className="ps-h2">A small, deliberate team.</h2>
             </div>
-            <div className="right">Hiring senior engineers in NYC, Lisbon, and remote-friendly EU/EST.</div>
+            
           </Reveal>
           <div className="ps-grid-4">
             {[
@@ -609,11 +609,11 @@ function CompanyPage({ openWaitlist }) {
           </Reveal>
           <div style={{ border: '1px solid var(--line)', borderRadius: 14, overflow: 'hidden', background: 'var(--bg-elev)' }}>
             {[
-              { t: 'Senior Distributed Systems Engineer', l: 'NYC · Lisbon · Remote (EU/EST)', d: 'Engineering' },
-              { t: 'Founding Designer', l: 'NYC or Lisbon', d: 'Design' },
-              { t: 'Forward Deployed Engineer', l: 'NYC', d: 'Engineering' },
+              { t: 'Senior Distributed Systems Engineer', l: 'Remote', d: 'Engineering' },
+              { t: 'Founding Designer', l: 'Remote', d: 'Design' },
+              { t: 'Forward Deployed Engineer', l: 'Remote', d: 'Engineering' },
               { t: 'Security Engineer (audit & compliance)', l: 'Remote', d: 'Engineering' },
-              { t: 'Founding Account Executive', l: 'NYC', d: 'Go-to-market' },
+              { t: 'Founding Account Executive', l: 'Remote', d: 'Go-to-market' },
             ].map((j, i) => (
               <div key={i} className="ps-job-row" style={{ borderBottom: i < 4 ? '1px solid var(--line-2)' : 'none' }}>
                 <div style={{ fontWeight: 500, fontSize: 15 }}>{j.t}</div>
