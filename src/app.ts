@@ -25,7 +25,14 @@ app.use(helmet({
     },
   },
 }));
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://curtainai.in',
+    'https://www.curtainai.in',
+    /^http:\/\/localhost(:\d+)?$/,
+  ],
+  credentials: true,
+}));
 
 // Serve frontend
 app.use(express.static(path.join(__dirname, '../public')));
