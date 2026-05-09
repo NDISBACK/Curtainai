@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "curtain-ai"
+version = "0.1.0"
+description = "Official Python SDK for the Curtain AI decision-engine API"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Curtain AI", email = "support@curtainai.com" }]
+keywords = ["ai", "nlp", "decision-engine", "chatbot", "support-automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "requests>=2.31.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "respx>=0.21",
+    "responses>=0.25",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pydantic[mypy]",
+]
+
+[project.urls]
+Homepage = "https://github.com/curtainai/curtain"
+Documentation = "https://docs.curtainai.com"
+"Bug Tracker" = "https://github.com/curtainai/curtain/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["curtain"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
