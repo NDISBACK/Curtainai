@@ -29,4 +29,6 @@ export const env = {
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     redirectUri:  process.env.GOOGLE_REDIRECT_URI ?? '',
   },
+
+  frontendUrl: process.env.FRONTEND_URL ?? '',
 };

@@ -1434,3 +1434,79 @@ body[data-console="light"] .console .sample:hover { background: var(--bg-hover);
 @media (max-width: 900px) {
   .sidebar-footer { display: none; }
 }
+
+/* ─── Responsive grid utilities (replace inline gridTemplateColumns) ── */
+
+/* Dashboard home: 4-card quick-link row (pages-1.jsx) */
+.dash-cards-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+@media (max-width: 1100px) { .dash-cards-4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px)  { .dash-cards-4 { grid-template-columns: 1fr; } }
+
+/* Generic 2-column grid, gap 14 */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 640px) { .grid-2col { grid-template-columns: 1fr; } }
+
+/* Generic 2-column grid, gap 12 */
+.grid-2col-sm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 640px) { .grid-2col-sm { grid-template-columns: 1fr; } }
+
+/* Generic 3-column grid */
+.grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+@media (max-width: 900px) { .grid-3col { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .grid-3col { grid-template-columns: 1fr; } }
+
+/* Asymmetric 1.65:1 main+aside */
+.grid-main-wide {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 1100px) { .grid-main-wide { grid-template-columns: 1fr; } }
+
+/* Asymmetric 1.55:1 main+aside */
+.grid-main-aside {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 1100px) { .grid-main-aside { grid-template-columns: 1fr; } }
+
+/* Before/after comparison panel */
+.grid-before-after {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 640px) {
+  .grid-before-after { grid-template-columns: 1fr; }
+  .grid-before-after > *:first-child {
+    border-right: none !important;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* 4-column impact metrics */
+.grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 1100px) { .grid-4col { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px)  { .grid-4col { grid-template-columns: 1fr; } }

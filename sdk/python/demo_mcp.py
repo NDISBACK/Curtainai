@@ -1,12 +1,4 @@
-"""
-Curtain AI – MCP Server Demo
-=============================
-Shows how any AI agent (Claude, GPT-4, LangChain, etc.) uses Curtain
-as a live tool via the Model Context Protocol.
 
-Run: python demo_mcp.py
-Requires: CURTAIN_API_KEY (and optionally CURTAIN_BASE_URL).
-"""
 
 import os
 import sys

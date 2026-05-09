@@ -80,7 +80,8 @@ function FrameMain() {
         <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, letterSpacing: '-0.012em' }}>Query history · last 24 h</h3>
         <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-4)' }}>live</span>
       </div>
-      <div style={{ border: '1px solid var(--line)', borderRadius: 9, overflow: 'hidden', background: 'var(--bg)' }}>
+      <div className="ps-query-table-wrap">
+      <div style={{ border: '1px solid var(--line)', borderRadius: 9, overflow: 'hidden', background: 'var(--bg)', minWidth: 340 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '70px 1.6fr 60px 90px', padding: '8px 12px', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)', background: 'var(--paper-2)', borderBottom: '1px solid var(--line-2)' }}>
           <span>ID</span><span>Query</span><span>Conf.</span><span>Status</span>
         </div>
@@ -95,6 +96,7 @@ function FrameMain() {
             </div>
           );
         })}
+      </div>
       </div>
     </div>
   );
@@ -275,7 +277,7 @@ function HomePage({ openWaitlist, setPage }) {
             <div className="right">Aggregate stats from cohorts 01–03. We'll publish a full benchmark with public beta in Q3.</div>
           </Reveal>
           <div className="ps-stats" style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)' }}>
-            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">94<span className="u">M</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>decisions evaluated</div></div>
+            <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">0.8<span className="u">M</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>decisions evaluated</div></div>
             <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">38<span className="u">ms</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>median match latency</div></div>
             <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">91<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>avg confidence score</div></div>
             <div className="ps-stat"><div className="v">99.97<span className="u">%</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>API uptime</div></div>
@@ -367,12 +369,12 @@ function FeaturesPage({ openWaitlist, setPage }) {
       ].map((f, i) => (
         <section key={i} className={`ps-section ${i % 2 ? 'alt' : ''}`}>
           <div className="ps-container">
-            <Reveal style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'center' }}>
+            <Reveal className="ps-feature-grid">
               <div style={{ order: i % 2 ? 2 : 1 }}>
                 <div className="ps-eyebrow">{f.eye}</div>
                 <h2 className="ps-h2">{f.h}</h2>
                 <p className="ps-sub">{f.p}</p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0 28px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 18px' }}>
+                <ul className="ps-feature-bullets">
                   {f.bullets.map((b, j) => (
                     <li key={j} style={{ display: 'flex', gap: 10, fontSize: 14, color: 'var(--ink-2)', alignItems: 'flex-start', lineHeight: 1.45 }}>
                       <span style={{ color: 'var(--ink)', marginTop: 1 }}><Ic.check /></span>{b}
