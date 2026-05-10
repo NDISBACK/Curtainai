@@ -29,7 +29,7 @@ function HeroFrame() {
       <div className="ps-frame-bar">
         <div className="lights"><span/><span/><span/></div>
         <div className="url">www.curtainai.in/dashboard</div>
-        <div className="nda">Beta preview</div>
+        <div className="nda">Live</div>
       </div>
       <div className="ps-frame-body">
         <div className="ps-frame-side">
@@ -98,20 +98,23 @@ function HomePage({ openWaitlist, setPage }) {
         <div className="ps-container">
           <div className="ps-hero-inner">
             <div>
-              <div className="ps-hero-tag"><b>Closed Beta</b> <span className="pulse" /> Cohort 04 onboarding · spring '26</div>
               <h1 className="ps-h1">Decision infrastructure<br/>for AI agents.</h1>
               <p className="ps-sub" style={{ fontSize: 18, maxWidth: '54ch' }}>
                 Curtain sits between your agents and the world. Every action is policy-checked, reviewable, and reversible — with a complete audit trail for the decisions that matter.
               </p>
               <div className="ps-hero-actions" style={{ marginTop: 28 }}>
-                <WLButton size="lg" onClick={() => openWaitlist()} label="Join the waitlist" />
+                <a href="/app.html" className="wl-btn lg">
+                  <span className="wl-glint" />
+                  <span style={{ position: 'relative' }}>Open Dashboard</span>
+                  <Ic.arrow className="wl-arrow" />
+                </a>
                 <WLButton size="lg" ghost onClick={() => setPage('features')} label="See how it works" />
               </div>
               <div className="ps-hero-meta">
-                <span>Private beta · cohort 04 open</span><span className="dot"/>
-                <span><strong>~2 wk</strong> invite cycle</span><span className="dot"/>
                 <span>SOC 2 in audit</span><span className="dot"/>
-                <span>REST API + MCP</span>
+                <span>REST API + MCP</span><span className="dot"/>
+                <span>&lt;40ms match latency</span><span className="dot"/>
+                <span>100% tenant isolation</span>
               </div>
             </div>
             <div style={{ position: 'relative' }}>
@@ -253,15 +256,15 @@ function HomePage({ openWaitlist, setPage }) {
         </div>
       </section>
 
-      {/* EARLY ACCESS */}
+      {/* PLATFORM STATS */}
       <section className="ps-section dark">
         <div className="ps-container">
           <Reveal className="ps-section-head">
             <div>
-              <div className="ps-eyebrow">Early access</div>
-              <h2 className="ps-h2">In private beta with enterprise teams — onboarding cohort 04 now.</h2>
+              <div className="ps-eyebrow">Platform</div>
+              <h2 className="ps-h2">Built for teams running agents in production.</h2>
             </div>
-            <div className="right">We move slowly on purpose. Each cohort gets a founder-led onboarding session and direct access to the team throughout beta.</div>
+            <div className="right">Every number is a hard guarantee — not a benchmark. Curtain is purpose-built for latency-sensitive, high-stakes agent pipelines.</div>
           </Reveal>
           <div className="ps-stats" style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)' }}>
             <div className="ps-stat" style={{ borderColor: 'rgba(255,255,255,0.12)' }}><div className="v">&lt;40<span className="u">ms</span></div><div className="l" style={{ color: 'rgba(250,250,248,0.65)' }}>median match latency</div></div>
@@ -285,7 +288,7 @@ function HomePage({ openWaitlist, setPage }) {
       {/* CTA */}
       <section className="ps-section tight">
         <div className="ps-container">
-          <CTABanner openWaitlist={openWaitlist} />
+          <CTABanner />
         </div>
       </section>
     </div>
@@ -368,7 +371,7 @@ function FeaturesPage({ openWaitlist, setPage }) {
                     </li>
                   ))}
                 </ul>
-                <WLButton onClick={() => openWaitlist()} label="Get early access" />
+                <a href="/app.html" className="wl-btn" style={{ display: 'inline-flex' }}><span className="wl-glint" /><span style={{ position: 'relative' }}>Open Dashboard</span><Ic.arrow className="wl-arrow" /></a>
               </div>
               <div style={{ order: i % 2 ? 1 : 2 }}>
                 <FeatureArt kind={f.art} />
@@ -380,7 +383,7 @@ function FeaturesPage({ openWaitlist, setPage }) {
 
       <section className="ps-section tight">
         <div className="ps-container">
-          <CTABanner openWaitlist={openWaitlist} />
+          <CTABanner />
         </div>
       </section>
     </div>

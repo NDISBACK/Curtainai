@@ -197,28 +197,26 @@ function WaitlistModal({ open, initialEmail = '', onClose, onSubmit, submitted }
 }
 
 // ─── Inline CTA banner (footer of every page) ──────────────────────
-function CTABanner({ openWaitlist }) {
-  const [email, setEmail] = useState('');
-  const submit = (e) => {
-    e.preventDefault();
-    openWaitlist(email);
-  };
+function CTABanner() {
   return (
     <Reveal className="ps-cta">
       <div>
-        <h2>Curtain is in closed beta — get an invite</h2>
-        <p>We're onboarding new teams every two weeks. Tell us where to send your invite and what you're trying to ship; we'll route you to the next cohort that fits.</p>
-        <form className="ps-cta-form" onSubmit={submit}>
-          <input type="email" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} />
-          <button type="submit"><Ic.zap /> Request invite</button>
-        </form>
+        <h2>Ready to put governance on your agents?</h2>
+        <p>Open the dashboard and start defining skills, running queries, and reviewing decisions in minutes. No setup required.</p>
+        <div style={{ marginTop: 24 }}>
+          <a href="/app.html" className="wl-btn lg" style={{ display: 'inline-flex' }}>
+            <span className="wl-glint" />
+            <span style={{ position: 'relative' }}>Open Dashboard</span>
+            <Ic.arrow className="wl-arrow" />
+          </a>
+        </div>
       </div>
       <div className="ps-cta-pic">
-        <div style={{ marginBottom: 8, color: 'rgba(250,250,248,0.85)' }}>What happens next</div>
-        <div className="row"><Ic.check className="ck" /> Confirm by email (within 1 minute)</div>
-        <div className="row"><Ic.check className="ck" /> Receive invite in next cohort window</div>
-        <div className="row"><Ic.check className="ck" /> 30-min onboarding with a founder</div>
-        <div className="row"><Ic.check className="ck" /> First decisions live within a week</div>
+        <div style={{ marginBottom: 8, color: 'rgba(250,250,248,0.85)' }}>What you get</div>
+        <div className="row"><Ic.check className="ck" /> Define skills in plain English</div>
+        <div className="row"><Ic.check className="ck" /> Query against active skills in &lt;40ms</div>
+        <div className="row"><Ic.check className="ck" /> Full decision trace &amp; audit log</div>
+        <div className="row"><Ic.check className="ck" /> REST API + MCP — no SDK lock-in</div>
       </div>
     </Reveal>
   );
@@ -227,12 +225,12 @@ function CTABanner({ openWaitlist }) {
 // ─── Tape ──────────────────────────────────────────────────────────
 function Tape() {
   const items = [
-    'Private beta · cohort 04 open',
     '< 40ms median match latency',
     'Hybrid vector + keyword search',
     'SOC 2 Type II in audit',
     'Made in India',
     'API-first · REST + MCP',
+    'Full tenant isolation',
   ];
   const all = [...items, ...items];
   return (
@@ -263,11 +261,7 @@ function TopNav({ page, setPage, openWaitlist }) {
         {/* Brand — top left */}
         <a href="#home" className="ps-brand" onClick={(e) => { e.preventDefault(); handleNav('home'); }}>
           <BrandMark size={22} />
-          Curtain <small>Beta</small>
-        </a>
-        {/* Dashboard button — immediately after brand */}
-        <a href="/app.html" className="ps-dash-btn" title="Open the real Curtain dashboard">
-          Test Dashboard <Ic.arrow style={{ width: 11, height: 11 }} />
+          Curtain
         </a>
         <nav className="ps-nav-links">
           {links.map(l => (
@@ -281,7 +275,11 @@ function TopNav({ page, setPage, openWaitlist }) {
           ))}
         </nav>
         <div className="ps-nav-cta">
-          <WLButton size="sm" onClick={() => openWaitlist()} label="Get early access" />
+          <a href="/app.html" className="wl-btn sm">
+            <span className="wl-glint" />
+            <span style={{ position: 'relative' }}>Open Dashboard</span>
+            <Ic.arrow className="wl-arrow" />
+          </a>
         </div>
         <button className="ps-burger" onClick={() => setMobileOpen(m => !m)} aria-label="Toggle menu">
           {mobileOpen
@@ -317,12 +315,11 @@ function Footer({ setPage, openWaitlist }) {
             <div className="ps-brand" style={{ marginBottom: 14 }}>
               <BrandMark size={22} />
               <span style={{ fontWeight: 600, fontSize: 15, letterSpacing: '-0.01em' }}>Curtain</span>
-              <small style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 500, background: 'rgba(11,13,14,0.06)', border: '1px solid rgba(11,13,14,0.08)', padding: '1px 6px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-3)', marginLeft: 4 }}>Beta</small>
             </div>
             <p style={{ fontSize: 13.5, color: 'var(--ink-3)', margin: '0 0 16px', maxWidth: '34ch', lineHeight: 1.55 }}>
               Decision infrastructure for teams shipping AI agents. Queryable. Reviewable. Auditable.
             </p>
-            <WLButton size="sm" ghost onClick={() => openWaitlist()} label="Join waitlist" />
+            <a href="/app.html" className="ps-dash-btn">Open Dashboard <Ic.arrow style={{ width: 11, height: 11 }} /></a>
           </div>
           <div>
             <h5>Product</h5>
@@ -350,12 +347,12 @@ function Footer({ setPage, openWaitlist }) {
               <li>{link('company', 'About')}</li>
               <li>{link('company', 'Careers')}</li>
               <li>{link('company', 'Press')}</li>
-              <li><button onClick={() => openWaitlist()}>Contact</button></li>
+              <li><a href="mailto:hello@curtainai.in">Contact</a></li>
             </ul>
           </div>
         </div>
         <div className="ps-foot-bottom">
-          <div>© Curtain Labs, Inc. — closed beta · v0.7</div>
+          <div>© Curtain Labs, Inc. — v1.0</div>
           <div className="right">
             <a>Privacy</a>
             <a>Terms</a>

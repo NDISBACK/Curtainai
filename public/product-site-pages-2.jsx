@@ -10,12 +10,12 @@ function PricingPage({ openWaitlist }) {
       name: 'Audience',
       tag: 'Build with us',
       price: 0, per: 'free',
-      meta: '50k queries / month. Closed-beta access.',
+      meta: '50k queries / month. Free to get started.',
       feats: ['Up to 3 workspaces', '50,000 queries/month', '7-day query history', 'Slack & email alerts', 'Community Discord'],
     },
     {
       name: 'Front row',
-      tag: 'Most beta teams',
+      tag: 'Most popular',
       price: 1900, per: 'mo',
       meta: 'For teams shipping agents to customers.',
       feats: ['Unlimited workspaces', '5M queries/month included', '90-day query history', 'Webhooks + PagerDuty', 'Per-workspace policy overrides', 'Analytics + drift alerts', 'SOC 2 evidence on request'],
@@ -114,7 +114,7 @@ function PricingPage({ openWaitlist }) {
           </Reveal>
           <div className="ps-faq">
             {[
-              ['How long does beta pricing last?', 'When you join the waitlist and onboard during the closed beta, your plan price is locked for 12 months from your start date — even after we launch GA pricing.'],
+              ['Is pricing locked in?', 'Your plan price is locked for 12 months from your start date — even after we update GA pricing.'],
               ['Is there a free tier?', 'Yes — the Audience plan is free up to 50,000 queries per month. It\'s designed for teams evaluating Curtain, building demos, or running internal agents.'],
               ['How is a "query" counted?', 'A query is a single call to POST /api/v1/query. Failed requests due to auth errors, retries from 5xx responses, and health checks do not count.'],
               ['Do you offer non-profit or research pricing?', 'Yes. Email founders@curtain.dev with a short note about your work and we\'ll set you up.'],
@@ -131,7 +131,7 @@ function PricingPage({ openWaitlist }) {
       </section>
 
       <section className="ps-section tight">
-        <div className="ps-container"><CTABanner openWaitlist={openWaitlist} /></div>
+        <div className="ps-container"><CTABanner /></div>
       </section>
     </div>
   );
@@ -161,7 +161,7 @@ function DocsPage({ openWaitlist }) {
         <div className="ps-container">
           <div className="ps-eyebrow">Docs · public preview</div>
           <h1 className="ps-h1" style={{ fontSize: 'clamp(36px, 4.4vw, 56px)' }}>Build a decision-aware agent in <em>10 minutes.</em></h1>
-          <p className="ps-sub">Real API reference for the Curtain REST API. Full reference, SDK guides, and API keys ship to closed-beta teams.</p>
+          <p className="ps-sub">Real API reference for the Curtain REST API. Full reference, SDK guides, and API keys available from the dashboard.</p>
         </div>
       </section>
 
@@ -170,9 +170,9 @@ function DocsPage({ openWaitlist }) {
           <div className="docs-banner">
             <div style={{ width: 36, height: 36, background: 'var(--ink)', color: 'var(--paper)', borderRadius: 9, display: 'grid', placeItems: 'center' }}><Ic.lock /></div>
             <div style={{ flex: 1 }}>
-              <b>API keys</b> (format: <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>cai_…</code>) are issued during beta onboarding. Join the waitlist to get yours.
+              <b>API keys</b> (format: <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12 }}>cai_…</code>) are available from the dashboard. Open the dashboard to create your first workspace and key.
             </div>
-            <WLButton size="sm" onClick={() => openWaitlist()} label="Get keys" />
+            <a href="/app.html" className="ps-dash-btn">Open Dashboard <Ic.arrow style={{ width: 11, height: 11 }} /></a>
           </div>
 
           <div className="docs-layout">
@@ -361,7 +361,7 @@ GET /api/v1/queries?escalated=true&limit=20&page=1
         </div>
       </section>
 
-      <section className="ps-section tight"><div className="ps-container"><CTABanner openWaitlist={openWaitlist} /></div></section>
+      <section className="ps-section tight"><div className="ps-container"><CTABanner /></div></section>
     </div>
   );
 }
@@ -394,7 +394,7 @@ function CustomersPage({ openWaitlist }) {
         <div className="ps-container">
           <div className="ps-eyebrow">Use cases</div>
           <h1 className="ps-h1" style={{ fontSize: 'clamp(40px, 5vw, 60px)' }}>What teams are building with Curtain.</h1>
-          <p className="ps-sub" style={{ fontSize: 17 }}>Three patterns we see across every team in the closed beta — no matter the industry.</p>
+          <p className="ps-sub" style={{ fontSize: 17 }}>Three patterns we see across every team using Curtain — no matter the industry.</p>
         </div>
       </section>
 
@@ -421,7 +421,7 @@ function CustomersPage({ openWaitlist }) {
                   <div style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.6, marginBottom: 16 }}>
                     Interested in deploying Curtain for {u.vertical.toLowerCase()}?
                   </div>
-                  <WLButton size="sm" onClick={() => openWaitlist()} label="Talk to us →" />
+                  <a href="/app.html" className="ps-dash-btn">Open Dashboard <Ic.arrow style={{ width: 11, height: 11 }} /></a>
                 </div>
               </div>
             </Reveal>
@@ -453,7 +453,7 @@ function CustomersPage({ openWaitlist }) {
         </div>
       </section>
 
-      <section className="ps-section tight"><div className="ps-container"><CTABanner openWaitlist={openWaitlist} /></div></section>
+      <section className="ps-section tight"><div className="ps-container"><CTABanner /></div></section>
     </div>
   );
 }
@@ -487,7 +487,7 @@ function SecurityPage({ openWaitlist }) {
             <div className="cert"><span className="d" /> HIPAA · BAA on Encore</div>
             <div className="cert"><span className="d" /> Pen tested · quarterly</div>
             <div style={{ marginLeft: 'auto' }}>
-              <WLButton size="sm" ghost onClick={() => openWaitlist()} label="Request security pack" />
+              <a href="mailto:security@curtainai.in" className="ps-dash-btn">Request security pack <Ic.arrow style={{ width: 11, height: 11 }} /></a>
             </div>
           </div>
 
@@ -512,7 +512,7 @@ function SecurityPage({ openWaitlist }) {
               <div className="ps-eyebrow">Trust</div>
               <h2 className="ps-h2">What we won't do.</h2>
             </div>
-            <div className="right">A short list, in plain English, of guarantees we make to every beta customer in writing.</div>
+            <div className="right">A short list, in plain English, of guarantees we make to every customer in writing.</div>
           </Reveal>
           <div className="ps-grid-2">
             {[
@@ -530,7 +530,7 @@ function SecurityPage({ openWaitlist }) {
         </div>
       </section>
 
-      <section className="ps-section tight"><div className="ps-container"><CTABanner openWaitlist={openWaitlist} /></div></section>
+      <section className="ps-section tight"><div className="ps-container"><CTABanner /></div></section>
     </div>
   );
 }
@@ -619,14 +619,14 @@ function CompanyPage({ openWaitlist }) {
                 <div style={{ fontWeight: 500, fontSize: 15 }}>{j.t}</div>
                 <div style={{ color: 'var(--ink-3)', fontSize: 13.5 }}>{j.l}</div>
                 <div style={{ fontSize: 11.5, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)' }}>{j.d}</div>
-                <WLButton size="sm" ghost onClick={() => openWaitlist()} label="Apply" />
+                <a href="mailto:careers@curtainai.in" className="ps-dash-btn">Apply <Ic.arrow style={{ width: 11, height: 11 }} /></a>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="ps-section tight"><div className="ps-container"><CTABanner openWaitlist={openWaitlist} /></div></section>
+      <section className="ps-section tight"><div className="ps-container"><CTABanner /></div></section>
     </div>
   );
 }
@@ -636,9 +636,9 @@ function ChangelogPage({ openWaitlist }) {
   const entries = [
     { v: '0.7.0', d: 'Apr 14, 2026', tag: 'beta', items: ['Hybrid search GA: vector (text-embedding-3-small) + Jaccard fused via RRF', 'Analytics materialized views (5-min refresh) — workspace + skill daily stats', 'Simulation Lab: test query batches against skill corpus', 'Extraction Studio: extract skills from conversation transcripts via GPT-4o'] },
     { v: '0.6.2', d: 'Mar 28, 2026', tag: 'patch', items: ['Fix: search_method constraint violation on no_keyword_match queries', 'Override history now linked to skill versions', 'Query history: pagination cursor + escalated filter'] },
-    { v: '0.6.0', d: 'Mar 12, 2026', tag: 'minor', items: ['Cohort 03 onboarding window opens', 'Skill versioning: immutable snapshots on content edits', 'Confidence percentiles (p50/p90/p99) per skill via RPC', 'EU region: data residency pinning'] },
+    { v: '0.6.0', d: 'Mar 12, 2026', tag: 'minor', items: ['General availability launch', 'Skill versioning: immutable snapshots on content edits', 'Confidence percentiles (p50/p90/p99) per skill via RPC', 'EU region: data residency pinning'] },
     { v: '0.5.0', d: 'Feb 22, 2026', tag: 'minor', items: ['Skill state machine: pending_review → active → disabled', 'API key management: create, list, revoke per workspace', 'Rate limiter: 100 req/min per workspace (in-memory sliding window)'] },
-    { v: '0.4.0', d: 'Feb 03, 2026', tag: 'minor', items: ['Cohort 02 onboarding', 'pgvector integration: IVFFlat index, 1536-dim embeddings', 'Hybrid search with configurable alpha (workspace setting)', 'Public docs preview'] },
+    { v: '0.4.0', d: 'Feb 03, 2026', tag: 'minor', items: ['pgvector integration: IVFFlat index, 1536-dim embeddings', 'Hybrid search with configurable alpha (workspace setting)', 'Public docs preview'] },
   ];
   return (
     <div className="ps-page">
@@ -646,7 +646,7 @@ function ChangelogPage({ openWaitlist }) {
         <div className="ps-container">
           <div className="ps-eyebrow">Changelog</div>
           <h1 className="ps-h1" style={{ fontSize: 'clamp(36px, 4.4vw, 56px)' }}>What we shipped this <em>fortnight.</em></h1>
-          <p className="ps-sub">Release cadence is every two weeks during closed beta. Bigger versions land alongside cohort onboarding windows.</p>
+          <p className="ps-sub">Release cadence is every two weeks. Bigger versions land alongside major feature launches.</p>
         </div>
       </section>
 
@@ -671,7 +671,7 @@ function ChangelogPage({ openWaitlist }) {
         </div>
       </section>
 
-      <section className="ps-section tight"><div className="ps-container"><CTABanner openWaitlist={openWaitlist} /></div></section>
+      <section className="ps-section tight"><div className="ps-container"><CTABanner /></div></section>
     </div>
   );
 }
