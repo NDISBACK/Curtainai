@@ -58,6 +58,11 @@ Over time, Curtain learns the shape of your support operation. You can simulate 
 ## How It Works
 
 ```
+Sample Workspace id :- 9e091037-af87-48a1-b8f8-aa1225988016
+Api key :- cai_56bf852488119dfec00efc2114ef9be08d0169a297a01638d86bfa0fc7608624
+```
+
+```
 Define Skills  →  Connect your agent  →  Query comes in  →  Decision returned (or escalated)
 ```
 

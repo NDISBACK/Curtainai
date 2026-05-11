@@ -656,7 +656,6 @@ function ChangelogPage({ openWaitlist }) {
             <Reveal key={i} delay={i * 50} className="ps-changelog-row" style={{ padding: '28px 0', borderTop: i ? '1px solid var(--line)' : 'none' }}>
               <div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 600 }}>v{e.v}</div>
-                <div style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 4 }}>{e.d}</div>
                 <div style={{ marginTop: 10, display: 'inline-block', padding: '2px 9px', fontSize: 10.5, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', borderRadius: 999, background: e.tag === 'beta' ? 'oklch(0.96 0.04 280)' : e.tag === 'patch' ? 'var(--paper-2)' : 'oklch(0.96 0.04 80)', color: 'var(--ink-2)' }}>{e.tag}</div>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
